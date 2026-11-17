@@ -13,6 +13,8 @@ interface Props {
   selected: number | null;
   /** Ruter som er del av mønsteret i et tips. */
   hintCells: number[];
+  /** Tallet som er i fokus: like tall og notater med tallet utheves. */
+  focusDigit: number | null;
   size: number;
   colors: Colors;
   onSelect: (cell: number) => void;
@@ -22,9 +24,8 @@ const OUTER = 2;
 const THICK = 2;
 const THIN = StyleSheet.hairlineWidth > 0.5 ? 0.5 : 1;
 
-function BoardImpl({ game, selected, hintCells, size, colors, onSelect }: Props) {
+function BoardImpl({ game, selected, hintCells, focusDigit, size, colors, onSelect }: Props) {
   const cellSize = (size - OUTER * 2) / 9;
-  const selValue = selected !== null ? game.values[selected] : 0;
   const errorsVisible = showErrors(game);
   const hintSet = new Set(hintCells);
 
@@ -51,8 +52,8 @@ function BoardImpl({ game, selected, hintCells, size, colors, onSelect }: Props)
           const sameArea =
             r === rowOf(selected) || c === colOf(selected) || boxOf(cell) === boxOf(selected);
           if (sameArea) bg = colors.area;
-          if (selValue && value === selValue) bg = colors.same;
         }
+        if (focusDigit && value === focusDigit) bg = colors.same;
         if (hintSet.has(cell)) bg = colors.hintBg;
         const wrong = errorsVisible && isWrong(game, cell);
         if (wrong) bg = colors.errorBg;
@@ -102,9 +103,34 @@ function BoardImpl({ game, selected, hintCells, size, colors, onSelect }: Props)
                     }}
                   >
                     {notes & (1 << (d - 1)) ? (
-                      <Text style={{ fontSize: cellSize * 0.27, lineHeight: cellSize * 0.3, color: colors.note }}>
-                        {d}
-                      </Text>
+                      d === focusDigit ? (
+                        // Notat med tallet i fokus: utheves med farget bakgrunn og fet skrift.
+                        <View
+                          style={{
+                            width: (cellSize - 2) / 3 - 1,
+                            height: (cellSize - 2) / 3 - 1,
+                            borderRadius: cellSize / 6,
+                            backgroundColor: colors.same,
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                          }}
+                        >
+                          <Text
+                            style={{
+                              fontSize: cellSize * 0.27,
+                              lineHeight: cellSize * 0.3,
+                              color: colors.user,
+                              fontWeight: '700',
+                            }}
+                          >
+                            {d}
+                          </Text>
+                        </View>
+                      ) : (
+                        <Text style={{ fontSize: cellSize * 0.27, lineHeight: cellSize * 0.3, color: colors.note }}>
+                          {d}
+                        </Text>
+                      )
                     ) : null}
                   </View>
                 ))}

@@ -3,8 +3,8 @@
  */
 import { StatusBar } from 'expo-status-bar';
 import React, { useEffect, useState } from 'react';
-import { BackHandler, StyleSheet } from 'react-native';
-import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
+import { BackHandler, StyleSheet, View } from 'react-native';
+import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Slot } from '../packages/game/src';
 import { GameScreen } from './src/screens/GameScreen';
 import { HomeScreen } from './src/screens/HomeScreen';
@@ -23,6 +23,8 @@ function Screens() {
   const colors = useColors();
   const { startGame } = useApp();
   const [route, setRoute] = useState<Route>({ name: 'home' });
+  // Innholdet starter under statuslinjen/kameraøya på iPhone, med litt ekstra luft.
+  const insets = useSafeAreaInsets();
   const home = () => setRoute({ name: 'home' });
 
   // Android tilbake-knapp går til hjem.
@@ -36,7 +38,18 @@ function Screens() {
   }, [route.name]);
 
   return (
-    <SafeAreaView style={[styles.root, { backgroundColor: colors.bg }]}>
+    <View
+      style={[
+        styles.root,
+        {
+          backgroundColor: colors.bg,
+          paddingTop: insets.top + 16,
+          paddingBottom: insets.bottom,
+          paddingLeft: insets.left,
+          paddingRight: insets.right,
+        },
+      ]}
+    >
       {route.name === 'home' && (
         <HomeScreen
           onOpenGame={(slot) => setRoute({ name: 'game', slot, key: Date.now() })}
@@ -58,7 +71,7 @@ function Screens() {
       {route.name === 'stats' && <StatsScreen onBack={home} />}
       {route.name === 'settings' && <SettingsScreen onBack={home} />}
       <StatusBar style="auto" />
-    </SafeAreaView>
+    </View>
   );
 }
 

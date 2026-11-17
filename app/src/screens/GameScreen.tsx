@@ -52,6 +52,11 @@ export function GameScreen({ slot, onHome, onPlayAgain }: Props) {
 
   const [game, setGame] = useState<GameState>(() => resume(data.games[slot]!, Date.now()));
   const [selected, setSelected] = useState<number | null>(null);
+  /**
+   * Tallet i fokus. Settes når man velger en rute med et tall eller setter inn et tall,
+   * og blir værende når man velger en tom rute (f.eks. for å skrive notater).
+   */
+  const [focusDigit, setFocusDigit] = useState<number | null>(null);
   const [hint, setHint] = useState<Hint | null>(null);
   const [result, setResult] = useState<RecordResult | null>(null);
   const [now, setNow] = useState(Date.now());
@@ -130,7 +135,9 @@ export function GameScreen({ slot, onHome, onPlayAgain }: Props) {
     (d: number) => {
       if (selected === null || paused) return;
       setHint(null);
-      apply(enterDigit(gameRef.current, selected, d, Date.now(), DEFAULT_PENALTIES).state);
+      const next = enterDigit(gameRef.current, selected, d, Date.now(), DEFAULT_PENALTIES).state;
+      if (next.values[selected] === d) setFocusDigit(d);
+      apply(next);
     },
     [selected, paused, apply],
   );
@@ -142,6 +149,13 @@ export function GameScreen({ slot, onHome, onPlayAgain }: Props) {
     },
     [selected, paused, apply],
   );
+
+  /** Velg rute. Har ruten et tall, blir det tallet i fokus; ellers beholdes fokuset. */
+  const onSelect = useCallback((cell: number) => {
+    setSelected(cell);
+    const v = gameRef.current.values[cell];
+    if (v) setFocusDigit(v);
+  }, []);
 
   const onErase = useCallback(() => {
     if (selected === null || paused) return;
@@ -220,9 +234,10 @@ export function GameScreen({ slot, onHome, onPlayAgain }: Props) {
           game={game}
           selected={selected}
           hintCells={hintCells}
+          focusDigit={focusDigit}
           size={contentWidth}
           colors={colors}
-          onSelect={setSelected}
+          onSelect={onSelect}
         />
       )}
 
