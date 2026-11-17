@@ -33,12 +33,29 @@ export interface GeneratedPuzzle {
 }
 
 /**
+ * Spenn for antall utgangstall per nivå (minst, mest).
+ * Hvert brett får et tilfeldig antall innenfor spennet, så det varierer fra brett til brett.
+ */
+export const GIVENS_RANGE: Record<Level, [number, number]> = {
+  1: [30, 40],
+  2: [27, 36],
+  3: [24, 32],
+  4: [22, 30],
+  5: [22, 30],
+};
+
+export const countGivens = (grid: Grid): number => grid.filter((v) => v !== 0).length;
+
+/**
  * Lager ett forsøk på et brett for et nivå:
- * starter med en full løsning og fjerner tall i tilfeldig rekkefølge så lenge
- * brettet fortsatt kan løses med teknikker på eller under målnivået.
- * Et brett som kan løses helt logisk har alltid nøyaktig én løsning.
+ * 1. Starter med en full løsning og fjerner tall i tilfeldig rekkefølge så lenge
+ *    brettet fortsatt kan løses med teknikker på eller under målnivået.
+ *    Et brett som kan løses helt logisk har alltid nøyaktig én løsning.
+ * 2. Trekker et tilfeldig antall utgangstall innenfor spennet for nivået, og legger
+ *    tilbake tall fra fasiten til brettet har så mange. Et tall legges bare tilbake
+ *    hvis brettet fortsatt krever målnivået (ikke blir lettere).
  *
- * Returnerer brettet hvis det faktisk krever målnivået, ellers null.
+ * Returnerer brettet hvis det krever målnivået og har riktig antall tall, ellers null.
  */
 export function tryGeneratePuzzle(level: Level, rng: Rng): GeneratedPuzzle | null {
   const solution = generateSolvedGrid(rng);
@@ -50,6 +67,22 @@ export function tryGeneratePuzzle(level: Level, rng: Rng): GeneratedPuzzle | nul
   }
   const result = solveLogically(puzzle, level);
   if (!result.solved || result.level !== level) return null;
+
+  const [min, max] = GIVENS_RANGE[level];
+  const target = min + Math.floor(rng() * (max - min + 1));
+  if (countGivens(puzzle) > target) return null;
+
+  const empties = shuffle(
+    [...Array(CELL_COUNT).keys()].filter((c) => puzzle[c] === 0),
+    rng,
+  );
+  for (const cell of empties) {
+    if (countGivens(puzzle) >= target) break;
+    puzzle[cell] = solution[cell];
+    // Brettet må fortsatt kreve målnivået: det skal ikke kunne løses med enklere teknikker.
+    if (level > 1 && solveLogically(puzzle, (level - 1) as Level).solved) puzzle[cell] = 0;
+  }
+  if (countGivens(puzzle) !== target) return null;
   return { puzzle, solution, level };
 }
 
@@ -73,6 +106,9 @@ export function verifyPuzzle(puzzle: Grid, solution: Grid, level: Level): string
   if (!grade.unique) problems.push('har ikke nøyaktig én løsning');
   if (!grade.solvableByLogic) problems.push('kan ikke løses uten gjetting');
   if (grade.level !== level) problems.push(`gradert til nivå ${grade.level}, forventet ${level}`);
+  const givens = countGivens(puzzle);
+  const [min, max] = GIVENS_RANGE[level];
+  if (givens < min || givens > max) problems.push(`${givens} utgangstall, forventet ${min}–${max}`);
   const solved = solve(puzzle);
   if (!solved || solved.join('') !== solution.join('')) problems.push('fasiten stemmer ikke');
   for (let c = 0; c < CELL_COUNT; c++) {

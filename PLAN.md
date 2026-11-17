@@ -10,11 +10,11 @@ Dokumentet skiller mellom tre ting:
 
 ## Status – her fortsetter vi
 
-Fase 0 er ferdig (17.11): motor, tester, brettbank og Expo-app er på plass (se kapittel 6). Ingenting er committet i git ennå.
+Fase 0 er ferdig (17.11): motor, tester, brettbank og Expo-app er på plass (se kapittel 6). Fase 0 er committet i git (main).
 
 Avklart 17.11: brettbank, nivånavn, teknikkinndeling, tilleggsfunksjoner, auto-sjekk (inkl. levering, avslutning og tips ved feil), lagring, appnavn, utseende (stil A, notatrad, klassisk rutenett), blå aksentfarge og logo A.
 
-Neste steg: fase 1 – enspiller. Først avklares åpent spørsmål 6 (antall utgangstall på nivå Lett).
+Neste steg: fase 1 – enspiller.
 
 ---
 
@@ -44,15 +44,16 @@ En sudoku-app for mobil der alle spill tas tid på.
 |---|---|
 | Brett | Ferdiglagd brettbank som følger med appen. Lages og graderes av et skript i prosjektet. Samme bank brukes senere i online-kamper |
 | Krav til brett | Nøyaktig én løsning, kan løses uten gjetting |
+| Utgangstall | Tilfeldig antall per brett innenfor spennet for nivået (se tabell under). Tall som legges til, skal aldri gjøre brettet lettere enn nivået. Spennene kan justeres ved testing |
 | Nivåer | 5 nivåer, definert av hvilke løsningsteknikker brettet krever (se tabell under) |
 
-| Nivå | Norsk | Engelsk | Teknikker brettet krever |
-|---|---|---|---|
-| 1 | Lett | Easy | Siste ledige rute i rad/kolonne/boks, åpenbare singler |
-| 2 | Middels | Medium | Skjulte singler |
-| 3 | Vanskelig | Hard | Par (åpne og skjulte), pekende par, boks/linje-reduksjon |
-| 4 | Ekspert | Expert | Tripler, X-Wing |
-| 5 | Mester | Master | Swordfish, XY-Wing og tilsvarende |
+| Nivå | Norsk | Engelsk | Teknikker brettet krever | Utgangstall |
+|---|---|---|---|---|
+| 1 | Lett | Easy | Siste ledige rute i rad/kolonne/boks, åpenbare singler | 30–40 |
+| 2 | Middels | Medium | Skjulte singler | 27–36 |
+| 3 | Vanskelig | Hard | Par (åpne og skjulte), pekende par, boks/linje-reduksjon | 24–32 |
+| 4 | Ekspert | Expert | Tripler, X-Wing | 22–30 |
+| 5 | Mester | Master | Swordfish, XY-Wing | 22–30 |
 
 ### Spillregler
 
@@ -138,7 +139,8 @@ supabase/                database, innlogging og serverfunksjoner (fra fase 3)
 - `npm run typecheck` – typesjekk av motor, skript og brettbank
 - `npm run generate-bank -- --count 1000 --seed 2026` – lager brettbanken på nytt (samme frø gir samme brett)
 - `npm run verify-bank` – kontrollerer alle brett og viser statistikk
-- `cd app` og `npx expo start` – starter appen (åpnes i Expo Go på telefonen)
+- `npm run web` – starter appen i nettleseren (http://localhost:8081)
+- `npm start` – starter appen (åpnes i Expo Go på telefonen). Ikke kjør `npx expo start` direkte i prosjektmappen: appen ligger i `app/`, og Expo vil da installere seg selv på feil sted
 
 **Teknisk merknad:** D:-disken er formatert som exFAT, som ikke støtter symlenker. Derfor brukes ikke npm workspaces. Appen importerer motoren med relative stier (`../packages/engine/src`), og `app/metro.config.js` peker Metro til `packages/`. Flyttes prosjektet til en NTFS-disk, kan workspaces tas i bruk igjen.
 
@@ -157,7 +159,7 @@ Lokal lagring i fase 1: pågående spill, statistikk og innstillinger ligger på
 
 **Status 17.11: ferdig.**
 - Motoren kan løse, gradere, validere og gi tips med forklaring for alle 12 teknikker. 29 tester går gjennom.
-- Brettbanken har 1000 brett per nivå (5000 totalt, ca. 1 MB). Alle er kontrollert: nøyaktig én løsning, kan løses uten gjetting og er gradert til riktig nivå.
+- Brettbanken har 1000 brett per nivå (5000 totalt, ca. 1 MB). Alle er kontrollert: nøyaktig én løsning, kan løses uten gjetting og er gradert til riktig nivå. Antall utgangstall er innenfor spennet for nivået.
 - Expo-appen (SDK 58) er opprettet med en midlertidig startskjerm som bruker motoren og brettbanken. Appen bygger for Android, og expo-doctor finner ingen problemer.
 - Ikke testet på en ekte telefon ennå.
 
@@ -209,7 +211,7 @@ Vennekamper, turneringer, sesonger, temaer, eventuell inntektsmodell.
 3. ~~Linjer rundt 3×3-boksene~~ – avklart 17.11: klassisk rutenett med runde hjørner.
 4. ~~Farger og logo~~ – avklart 17.11: blå aksentfarge, logo A (rutenett).
 5. ~~Lagring når appen lukkes~~ – avklart 17.11: lagres alltid.
-6. Antall utgangstall: alle nivåer i brettbanken har nå 22–29 utgangstall, fordi brettene lages så minimale som mulig. Nivået styres bare av teknikkene. Skal Lett (og evt. Middels) ha flere utgangstall, f.eks. 36–45, slik at de føles lettere for nybegynnere?
+6. ~~Antall utgangstall~~ – avklart 17.11: tilfeldig antall innenfor et eget spenn per nivå (se brett og nivåer).
 
 **Før fase 2**
 7. Hvem står som utgiver i butikkene – privatperson eller firma?

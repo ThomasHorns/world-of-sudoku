@@ -2,9 +2,11 @@ import { describe, expect, it } from 'vitest';
 import {
   applyStep,
   createRng,
+  countGivens,
   createState,
   findNextStep,
   generatePuzzle,
+  GIVENS_RANGE,
   gradePuzzle,
   Level,
   solve,
@@ -64,6 +66,9 @@ describe('generering og gradering', () => {
       expect(g.solvableByLogic).toBe(true);
       expect(g.level).toBe(level);
       expect(solve(puzzle)).toEqual(solution);
+      const [min, max] = GIVENS_RANGE[level];
+      expect(countGivens(puzzle)).toBeGreaterThanOrEqual(min);
+      expect(countGivens(puzzle)).toBeLessThanOrEqual(max);
     }
   });
 
