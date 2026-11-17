@@ -214,7 +214,7 @@ Lokal lagring i fase 1: pågående spill, statistikk og innstillinger ligger på
 **Gjenstår (krever deg):**
 1. Velge kontakt-e-post (åpent spørsmål 17).
 2. Publisere personvernerklæringen på Google Sites (se `store/google-play.md`).
-3. Koble prosjektet til Expo-kontoen (`eas init`) og bygge en testversjon.
+3. ~~Koble prosjektet til Expo-kontoen og bygge en testversjon~~ – gjort 17.11: prosjektet eies av `mchorn-team` på expo.dev, og første test-APK (versionCode 1) er bygget med profilen `preview`. Signeringsnøkkelen ble laget og lagres av Expo.
 4. Teste på lånt Android-telefon. Justere straff og nivåer ved behov.
 5. Endelig logo, funksjonsgrafikk og skjermbilder.
 6. Opprette appen i Play Console, fylle ut skjemaene og starte lukket test med 12 testere i 14 dager.
