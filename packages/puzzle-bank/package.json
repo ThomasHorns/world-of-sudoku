@@ -1,0 +1,8 @@
+{
+  "name": "@wos/puzzle-bank",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Ferdig graderte sudoku-brett for World of Sudoku",
+  "main": "index.ts",
+  "types": "index.ts"
+}

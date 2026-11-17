@@ -1,0 +1,8 @@
+{
+  "name": "@wos/engine",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Sudoku-motor for World of Sudoku: løser, gradering, validering og tips",
+  "main": "src/index.ts",
+  "types": "src/index.ts"
+}

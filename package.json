@@ -1,0 +1,16 @@
+{
+  "name": "world-of-sudoku",
+  "private": true,
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc -p packages/engine --noEmit",
+    "generate-bank": "tsx tools/generate-bank.ts",
+    "verify-bank": "tsx tools/verify-bank.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.6.0",
+    "vitest": "^3.0.0"
+  }
+}
