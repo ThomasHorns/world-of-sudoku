@@ -14,7 +14,9 @@ Fase 0 er ferdig (17.11): motor, tester, brettbank og Expo-app er på plass (se 
 
 Avklart 17.11: brettbank, nivånavn, teknikkinndeling, tilleggsfunksjoner, auto-sjekk (inkl. levering, avslutning og tips ved feil), lagring, appnavn, utseende (stil A, notatrad, klassisk rutenett), blå aksentfarge og logo A.
 
-Neste steg: fase 1 – enspiller.
+Fase 1 (enspiller) er bygget og testet i nettleser 17.11, men ikke på telefon og ikke committet.
+
+Neste steg: teste på telefon med Expo Go, avklare åpne spørsmål 13–15, og deretter fase 2.
 
 ---
 
@@ -68,12 +70,14 @@ En sudoku-app for mobil der alle spill tas tid på.
 | Auto-sjekk PÅ | Feil tall markeres rødt med en gang og gir tidsstraff per feil. Spillet kan alltid fullføres. Spillet avsluttes automatisk når siste rute er riktig: klokken stopper og resultatskjermen vises |
 | Auto-sjekk AV | Ingen sjekk underveis og ingen tidsstraff for feil. «Lever brett» kan bare trykkes når alle ruter er fylt. Brettet vises da som riktig eller feil, og feilene uthves rødt. Levering er endelig: med feil er spillet over og regnes som ikke løst |
 | Tips ved feil (auto-sjekk AV) | Har brettet feil tall, sier tipset bare «Det finnes minst én feil på brettet», uten å vise hvor. Gir tidsstraff som vanlig tips |
-| Straffestørrelse | Bestemmes ved testing. Bygges som justerbare verdier |
+| Straffestørrelse | Startverdier: 30 s per feil (auto-sjekk på) og 30 s per tips. Legges rett på klokken, og «+30 s» vises kort. Justeres etter testing |
+| Pågående spill | Ett uferdig spill per nivå, pluss dagens brett. Starter man nytt på et nivå med uferdig spill, spør appen om det skal fortsettes eller forkastes |
+| Språk | Følger telefonen (norsk hvis telefonen er på norsk, ellers engelsk), kan endres i innstillinger |
 
 ### Funksjoner i første versjon
 
 - Statistikk per nivå: beste tid, snittid, antall løste, antall tips og feil. Egne rekorder for spill med og uten auto-sjekk.
-- Dagens brett: samme brett for alle hver dag.
+- Dagens brett: samme brett for alle hver dag. Nivået skifter med ukedagen (se åpent spørsmål 15).
 - Mørk modus.
 - Markering av like tall og av rad/kolonne/boks for valgt rute.
 
@@ -128,7 +132,11 @@ packages/engine/         Sudoku-motoren – ren TypeScript, ingen UI
   src/hint.ts            tips (neste logiske steg, eller «det finnes en feil»)
   src/explain.ts         forklaringstekster og navn på norsk og engelsk
   test/                  tester (vitest)
+packages/game/           spillreglene (rene funksjoner): trekk, notater, klokke, straff,
+                         tips, levering, statistikk, dagens brett, valg av brett
 packages/puzzle-bank/    brettbanken, 1000 brett per nivå (data/level-N.json)
+app/src/                 skjermer (hjem, spill, statistikk, innstillinger), brett,
+                         tastatur, tekster (nb/en), farger og lokal lagring
 tools/                   skript som lager og kontrollerer brettbanken
 supabase/                database, innlogging og serverfunksjoner (fra fase 3)
 ```
@@ -175,6 +183,13 @@ Lokal lagring i fase 1: pågående spill, statistikk og innstillinger ligger på
 
 **Ferdig når:** et spill på hvert nivå kan spilles fra start til slutt med og uten auto-sjekk, avbrytes og fortsettes, og tiden lagres.
 
+**Status 17.11: bygget og testet i nettleser.**
+- Hjem (dagens brett, nivåer, statistikk, innstillinger), startvalg med auto-sjekk, spillskjerm, resultat, statistikk og språkvalg er laget.
+- Spillreglene ligger i `packages/game` med 21 tester. Totalt 50 tester går gjennom.
+- Testet i nettleser (mobilstørrelse, lys og mørk modus): notater, feil med og uten auto-sjekk, straff, tips («det finnes en feil» og logisk steg), pause, automatisk avslutning, levering med feil, statistikk og lagring etter ny innlasting.
+- På web kan tallene også skrives med tastaturet (1–9, Backspace, piltaster).
+- Ikke testet på en ekte telefon ennå.
+
 ### Fase 2 – Testing og lansering
 - Testing på ekte iOS- og Android-telefoner.
 - Justere straffestørrelser og nivågrenser ut fra spilling.
@@ -212,6 +227,11 @@ Vennekamper, turneringer, sesonger, temaer, eventuell inntektsmodell.
 4. ~~Farger og logo~~ – avklart 17.11: blå aksentfarge, logo A (rutenett).
 5. ~~Lagring når appen lukkes~~ – avklart 17.11: lagres alltid.
 6. ~~Antall utgangstall~~ – avklart 17.11: tilfeldig antall innenfor et eget spenn per nivå (se brett og nivåer).
+
+**Fra fase 1 (valg jeg tok underveis – bekreft eller endre)**
+13. Dagens brett kan spilles én gang per dag, også hvis det ikke blir løst. Er det riktig?
+14. «Lever brett» har ingen bekreftelse («Er du sikker?»), selv om leveringen er endelig. Ønskes en bekreftelse?
+15. Nivå per ukedag for dagens brett: man Lett, tir Middels, ons Vanskelig, tor Ekspert, fre Vanskelig, lør Mester, søn Ekspert. Er fordelingen grei?
 
 **Før fase 2**
 7. Hvem står som utgiver i butikkene – privatperson eller firma?

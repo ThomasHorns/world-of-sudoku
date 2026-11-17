@@ -1,47 +1,77 @@
 /**
- * Midlertidig startskjerm (fase 0).
- * Viser at appen får tak i sudoku-motoren og brettbanken.
- * Selve spillskjermen bygges i fase 1.
+ * World of Sudoku – rotkomponent med enkel skjermnavigasjon.
  */
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, useColorScheme, View } from 'react-native';
-import { LEVEL_NAMES, Level, parseGrid, solveLogically } from '../packages/engine/src';
-import { PUZZLE_BANK } from '../packages/puzzle-bank';
+import React, { useEffect, useState } from 'react';
+import { BackHandler, StyleSheet } from 'react-native';
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
+import { Slot } from '../packages/game/src';
+import { GameScreen } from './src/screens/GameScreen';
+import { HomeScreen } from './src/screens/HomeScreen';
+import { SettingsScreen } from './src/screens/SettingsScreen';
+import { StatsScreen } from './src/screens/StatsScreen';
+import { AppProvider, useApp } from './src/store';
+import { useColors } from './src/theme';
 
-const LEVELS: Level[] = [1, 2, 3, 4, 5];
+type Route =
+  | { name: 'home' }
+  | { name: 'game'; slot: Slot; key: number }
+  | { name: 'stats' }
+  | { name: 'settings' };
 
-export default function App() {
-  const dark = useColorScheme() === 'dark';
-  const colors = dark
-    ? { bg: '#2C2C2A', text: '#F1EFE8', muted: '#B4B2A9', accent: '#85B7EB' }
-    : { bg: '#FFFFFF', text: '#2C2C2A', muted: '#5F5E5A', accent: '#185FA5' };
+function Screens() {
+  const colors = useColors();
+  const { startGame } = useApp();
+  const [route, setRoute] = useState<Route>({ name: 'home' });
+  const home = () => setRoute({ name: 'home' });
 
-  // Enkel selvtest: løs første brett på hvert nivå med motoren.
-  const rows = LEVELS.map((level) => {
-    const first = PUZZLE_BANK[level][0];
-    const ok = first
-      ? solveLogically(parseGrid(first.puzzle)).values.join('') === first.solution
-      : false;
-    return { level, count: PUZZLE_BANK[level].length, ok };
-  });
+  // Android tilbake-knapp går til hjem.
+  useEffect(() => {
+    const sub = BackHandler.addEventListener('hardwareBackPress', () => {
+      if (route.name === 'home') return false;
+      home();
+      return true;
+    });
+    return () => sub.remove();
+  }, [route.name]);
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.bg }]}>
-      <Text style={[styles.title, { color: colors.accent }]}>World of Sudoku</Text>
-      {rows.map((r) => (
-        <Text key={r.level} style={[styles.row, { color: colors.text }]}>
-          {LEVEL_NAMES.nb[r.level]}: {r.count} brett {r.ok ? '✓' : '✗'}
-        </Text>
-      ))}
-      <Text style={[styles.note, { color: colors.muted }]}>Fase 0 – spillskjermen kommer i fase 1</Text>
+    <SafeAreaView style={[styles.root, { backgroundColor: colors.bg }]}>
+      {route.name === 'home' && (
+        <HomeScreen
+          onOpenGame={(slot) => setRoute({ name: 'game', slot, key: Date.now() })}
+          onStats={() => setRoute({ name: 'stats' })}
+          onSettings={() => setRoute({ name: 'settings' })}
+        />
+      )}
+      {route.name === 'game' && (
+        <GameScreen
+          key={route.key}
+          slot={route.slot}
+          onHome={home}
+          onPlayAgain={(slot, autoCheck) => {
+            startGame({ slot, autoCheck });
+            setRoute({ name: 'game', slot, key: Date.now() });
+          }}
+        />
+      )}
+      {route.name === 'stats' && <StatsScreen onBack={home} />}
+      {route.name === 'settings' && <SettingsScreen onBack={home} />}
       <StatusBar style="auto" />
-    </View>
+    </SafeAreaView>
+  );
+}
+
+export default function App() {
+  return (
+    <SafeAreaProvider>
+      <AppProvider>
+        <Screens />
+      </AppProvider>
+    </SafeAreaProvider>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 8 },
-  title: { fontSize: 28, fontWeight: '500', marginBottom: 16 },
-  row: { fontSize: 16 },
-  note: { fontSize: 13, marginTop: 24 },
+  root: { flex: 1 },
 });
