@@ -7,9 +7,11 @@
     "test": "vitest run",
     "typecheck": "tsc -p tsconfig.json",
     "generate-bank": "tsx tools/generate-bank.ts",
-    "verify-bank": "tsx tools/verify-bank.ts"
+    "verify-bank": "tsx tools/verify-bank.ts",
+    "generate-icons": "tsx tools/generate-icons.ts"
   },
   "devDependencies": {
+    "@resvg/resvg-js": "^2.6.2",
     "@types/node": "^22.0.0",
     "tsx": "^4.19.0",
     "typescript": "^5.6.0",

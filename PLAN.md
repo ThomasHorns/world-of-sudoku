@@ -14,9 +14,9 @@ Fase 0 er ferdig (17.11): motor, tester, brettbank og Expo-app er på plass (se 
 
 Avklart 17.11: brettbank, nivånavn, teknikkinndeling, tilleggsfunksjoner, auto-sjekk (inkl. levering, avslutning og tips ved feil), lagring, appnavn, utseende (stil A, notatrad, klassisk rutenett), blå aksentfarge og logo A.
 
-Fase 1 (enspiller) er bygget og testet i nettleser 17.11, men ikke på telefon og ikke committet.
+Fase 1 (enspiller) er ferdig og testet på iPhone med Expo Go. Fase 2 (lansering på Android) er påbegynt 17.11: konfigurasjon, ikoner, personvernerklæring og butikktekster er klare.
 
-Neste steg: teste på telefon med Expo Go, avklare åpne spørsmål 13–15, og deretter fase 2.
+Neste steg: listen «Gjenstår» under fase 2 i kapittel 6. Kontakt-e-post (spørsmål 17) er det eneste åpne valget før lansering.
 
 ---
 
@@ -37,7 +37,9 @@ En sudoku-app for mobil der alle spill tas tid på.
 | Plattform | iOS og Android, én felles kodebase |
 | Teknologi | Expo / React Native (TypeScript) + Supabase som backend |
 | Språk | Norsk og engelsk fra start |
-| Forretningsmodell | Ikke bestemt. Ingenting bygges for annonser/betaling i fase 1, men ingenting skal stenge for det |
+| Forretningsmodell | Første versjon: gratis, uten annonser og kjøp. Senere inntekt er ikke bestemt |
+| Utgiver | Privatperson. Android lanseres først, iPhone senere |
+| App-ID | `mchorn.worldofsudoku` (Android og iOS) |
 | Konto | Ingen innlogging i enspiller-fasen. Alt lagres lokalt på telefonen |
 
 ### Brett og nivåer
@@ -200,6 +202,24 @@ Lokal lagring i fase 1: pågående spill, statistikk og innstillinger ligger på
 
 **Ferdig når:** appen ligger i begge butikkene.
 
+**Avklart 17.11:** Android lanseres først (iPhone senere med samme kode). Utgiver er deg som privatperson. App-ID: `mchorn.worldofsudoku`. Første versjon er gratis, uten annonser og kjøp. Google-kontoen er ny, så en lukket test med minst 12 testere i 14 dager trengs før publisering. Android-telefon til testing lånes.
+
+**Status 17.11 – forberedt:**
+- `app/app.json`: app-ID for Android og iOS, oppstartsbilde (lys og mørk), ikonfarge.
+- `app/eas.json`: byggeprofiler `preview` (APK til testing) og `production` (AAB til Google Play), med automatisk versjonsnummer.
+- Midlertidige ikoner og oppstartsbilde fra logo A, laget med `npm run generate-icons`.
+- `store/personvern.md`: personvernerklæring (nb/en).
+- `store/google-play.md`: butikktekster (nb/en), datasikkerhet, innholdsvurdering, plan for lukket test og byggesteg.
+
+**Gjenstår (krever deg):**
+1. Velge kontakt-e-post (åpent spørsmål 17).
+2. Publisere personvernerklæringen på Google Sites (se `store/google-play.md`).
+3. Koble prosjektet til Expo-kontoen (`eas init`) og bygge en testversjon.
+4. Teste på lånt Android-telefon. Justere straff og nivåer ved behov.
+5. Endelig logo, funksjonsgrafikk og skjermbilder.
+6. Opprette appen i Play Console, fylle ut skjemaene og starte lukket test med 12 testere i 14 dager.
+7. Søke om produksjonstilgang og publisere.
+
 ### Fase 3 – Kontoer og backend
 - Innlogging via Supabase.
 - Flytte lokal statistikk til kontoen, synkronisering mellom enheter.
@@ -229,13 +249,19 @@ Vennekamper, turneringer, sesonger, temaer, eventuell inntektsmodell.
 6. ~~Antall utgangstall~~ – avklart 17.11: tilfeldig antall innenfor et eget spenn per nivå (se brett og nivåer).
 
 **Fra fase 1 (valg jeg tok underveis – bekreft eller endre)**
-13. Dagens brett kan spilles én gang per dag, også hvis det ikke blir løst. Er det riktig?
-14. «Lever brett» har ingen bekreftelse («Er du sikker?»), selv om leveringen er endelig. Ønskes en bekreftelse?
-15. Nivå per ukedag for dagens brett: man Lett, tir Middels, ons Vanskelig, tor Ekspert, fre Vanskelig, lør Mester, søn Ekspert. Er fordelingen grei?
+13. ~~Dagens brett én gang per dag~~ – avklart 17.11: ja, også ved tap.
+14. ~~Bekreftelse på «Lever brett»~~ – avklart 17.11: nei, leveres med en gang.
+15. ~~Nivå per ukedag~~ – avklart 17.11: beholdes som foreslått.
+
+**Før lansering (fase 2)**
+16. ~~Navnet~~ – avklart 17.11: «World of Sudoku» beholdes, selv om en liten app med samme navn finnes fra før.
+17. Kontakt-e-post som vises offentlig i butikken og i personvernerklæringen. Bestemmes senere – feltet står som [E-POSTADRESSE] til da.
+18. ~~Publisering av personvernerklæringen~~ – avklart 17.11: Google Sites.
+19. ~~Målgruppe~~ – avklart 17.11: 13 år og eldre.
 
 **Før fase 2**
-7. Hvem står som utgiver i butikkene – privatperson eller firma?
-8. Forretningsmodell. Annonser og kjøp påvirker personvernerklæring og butikkoppføring.
+7. ~~Utgiver~~ – avklart 17.11: privatperson.
+8. ~~Forretningsmodell for første versjon~~ – avklart 17.11: gratis, uten annonser og kjøp.
 
 **Før fase 4**
 9. Skal tips og auto-sjekk være tilgjengelig i online-kamper?
