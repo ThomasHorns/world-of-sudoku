@@ -10,7 +10,7 @@ Dokumentet skiller mellom tre ting:
 
 ## Status – her fortsetter vi
 
-**Sist oppdatert 19.11 kveld.** Alt er committet og pushet til GitHub (main).
+**Sist oppdatert 19.11 kveld.** Alt er committet og pushet til GitHub (main). iPad-steget venter på at iPaden lades.
 
 **Ferdig:** fase 0 og 1 (motor, enspiller), fase 2b i kode og testet på iPhone med utviklerversjonen: Pro-kjøp (sandbox-kjøp virker), «uten hjelpemidler», Game Center (31 lister opprettet, innsending virker – se logg-linjer `[toppliste]` i utviklerserveren), AdMob (samtykke, banner, mellomannonse). iPhone-skjermbilder (6 engelske + 6 norske, 1206×2622) er lastet opp i App Store Connect. Personvernside: https://sites.google.com/view/world-of-sudoku/start
 
@@ -18,8 +18,8 @@ Dokumentet skiller mellom tre ting:
 
 **Neste steg, i rekkefølge:**
 1. **iPad:** registrer iPaden (`npx eas-cli@latest device:create` i `app/`, brukeren åpner lenken på iPaden og installerer profilen). Bygg utviklerversjonen på nytt (`npx eas-cli@latest build --platform ios --profile development`, svar **No** på «reuse the profile» og velg begge enhetene). Ta 6 skjermbilder per språk på iPad, legg dem i `store/screenshots/raw/ipad/{en,no}/1–6.png` og kjør `npm run make-screenshots` (2064×2752).
-2. **App Privacy** i App Store Connect (AdMob-data: se tabellen i samtalen/`store/app-store.md` – Coarse Location, Device ID, Product Interaction, Advertising Data = tracking; Crash/Performance Data = analytics).
-3. **App Information:** undertittel, kategori Games → Puzzle, aldersgrense 4+.
+2. ~~**App Privacy** i App Store Connect~~ – **ferdig 19.11**: fylt ut og publisert etter tabellen i `store/app-store.md`. Sporingsspørsmålet (ATT) vises ved oppstart, så tracking = Yes er dekket.
+3. ~~**App Information**~~ – **ferdig 19.11**: undertittel «Daily puzzles & smart hints» / «Daglig brett og smarte tips», kategori Games → Puzzle, aldersgrense 4+ (Contests = Infrequent; Frequent ga 13+). Ikke «Made for Kids» – Kids-kategorien tillater ikke sporende annonser. Appen selges ikke i Afghanistan og Marokko (lokale lover).
 4. **Produksjonsbygg** (`--profile production`): bruker ekte AdMob-ID-er. Signeringsprofilen for App Store må lages på nytt med Game Center (svar No på gjenbruk). Last opp med `eas submit --platform ios --latest`, test i TestFlight.
 5. **Versjonssiden:** velg bygget, huk av Game Center og legg til listene, fyll inn iPad-skjermbilder, send til gjennomgang (Pro-kjøpet sendes sammen med versjonen).
 6. Til slutt (valgfritt): endelig logo, nytt skjermbilde til Pro-produktet med pris.

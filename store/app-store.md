@@ -17,7 +17,7 @@ Utkast til App Store Connect. Felt i [HAKEPARENTES] må fylles inn. Kravene unde
 | Personvernerklæring (URL) | https://sites.google.com/view/world-of-sudoku/start |
 | Support-URL (påkrevd) | https://sites.google.com/view/world-of-sudoku/start (samme side, med kontakt-e-post) |
 | Copyright | 2026 Thomas Hornsletten |
-| Aldersgrense | 4+ (svar «Ingen» på alle spørsmål i aldersskjemaet) |
+| Aldersgrense | 4+ (None/No på alt, Advertising = Yes, Contests = Infrequent – Frequent gir 13+. Ikke «Made for Kids») |
 | Kryptering | Bruker ikke kryptering som må rapporteres (satt i `app.json`: `usesNonExemptEncryption: false`) |
 
 ## Personvern i App Store («App Privacy»)
@@ -39,7 +39,7 @@ Ikke oppgi kjøp (håndteres av Apple), Game Center (Apples tjeneste) eller spil
 
 **Undertittel** (maks 30 tegn):
 
-> Logisk sudoku med tips
+> Daglig brett og smarte tips
 
 **Reklametekst** (maks 170 tegn, kan endres uten ny versjon):
 
@@ -83,7 +83,7 @@ Ikke oppgi kjøp (håndteres av Apple), Game Center (Apples tjeneste) eller spil
 
 **Subtitle** (max 30 characters):
 
-> Logic sudoku with smart hints
+> Daily puzzles & smart hints
 
 **Promotional text** (max 170 characters):
 
