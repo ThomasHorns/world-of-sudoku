@@ -13,8 +13,8 @@ Alt her er utkast som skal brukes i Google Play Console. Felt i [HAKEPARENTES] m
 | Kategori | Puslespill (Puzzle) |
 | Gratis eller betalt | Gratis. Merk: en gratis app kan ikke gjøres betalt senere |
 | Annonser | Nei |
-| Personvernerklæring | [URL fra Google Sites] – teksten ligger i `store/personvern.md` |
-| Kontakt-e-post | [E-POSTADRESSE] (vises offentlig i butikken) |
+| Personvernerklæring | https://sites.google.com/view/world-of-sudoku/start – teksten ligger i `store/personvern.md` |
+| Kontakt-e-post | thomas.hornsletten@gmail.com (vises offentlig i butikken) |
 
 ## Butikkoppføring – norsk
 

@@ -61,7 +61,7 @@ export function NumberPad({ width, colors, numbersLabel, notesLabel, counts, dis
               styles.key,
               {
                 width: key,
-                height: Math.min(36, key),
+                height: Math.min(48, key * 1.25),
                 backgroundColor: colors.notePadBg,
                 borderWidth: 1,
                 borderColor: colors.notePadBorder,
@@ -69,7 +69,7 @@ export function NumberPad({ width, colors, numbersLabel, notesLabel, counts, dis
               },
             ]}
           >
-            <Text style={{ color: colors.notePadText, fontSize: 14 }}>{d}</Text>
+            <Text style={{ color: colors.notePadText, fontSize: 20 }}>{d}</Text>
           </Pressable>
         ))}
       </View>

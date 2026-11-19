@@ -54,6 +54,11 @@ export interface GameState {
   /** Notater per rute som bitmaske (bit d-1 = siffer d). */
   notes: number[];
   autoCheck: boolean;
+  /**
+   * Spill uten hjelpemidler (Pro): auto-sjekk og tips er av. Notater og markering er tillatt.
+   * Bare slike spill kan registreres på topplistene. Mangler i eldre lagrede spill (= false).
+   */
+  noAids?: boolean;
   /** Aktiv spilletid uten straff, fram til `runningSince`. */
   elapsedMs: number;
   /** Tidspunkt klokken ble startet, eller null hvis den står. */
@@ -76,6 +81,8 @@ export interface NewGame {
   slot: Slot;
   dailyDate?: string | null;
   autoCheck: boolean;
+  /** Uten hjelpemidler. Overstyrer `autoCheck` (blir alltid av). */
+  noAids?: boolean;
   now: number;
 }
 
@@ -90,7 +97,8 @@ export function createGame(g: NewGame): GameState {
     solution: g.solution,
     values: parseGrid(g.puzzle),
     notes: new Array(81).fill(0),
-    autoCheck: g.autoCheck,
+    autoCheck: g.noAids ? false : g.autoCheck,
+    noAids: !!g.noAids,
     elapsedMs: 0,
     runningSince: g.now,
     penaltyMs: 0,
@@ -109,6 +117,16 @@ export const solutionAt = (s: GameState, cell: number): number => Number(s.solut
 /** Er tallet i ruten feil? (Gjelder bare spillerens egne tall.) */
 export const isWrong = (s: GameState, cell: number): boolean =>
   !isGiven(s, cell) && s.values[cell] !== 0 && s.values[cell] !== solutionAt(s, cell);
+
+/** Er tips tilgjengelig i dette spillet? (Ikke uten hjelpemidler.) */
+export const hintsAllowed = (s: GameState): boolean => !s.noAids;
+
+/**
+ * Kan resultatet sendes til topplisten? Bare løste spill uten hjelpemidler.
+ * (At spilleren har Pro sjekkes av appen.)
+ */
+export const isLeaderboardEligible = (s: GameState): boolean =>
+  !!s.noAids && s.status === 'won' && !s.autoCheck && s.hintCount === 0;
 
 /** Skal feil vises med rødt? Med auto-sjekk alltid, ellers bare etter tapt levering. */
 export const showErrors = (s: GameState): boolean => s.autoCheck || s.status === 'lost';
@@ -219,7 +237,7 @@ export function requestHint(
   s: GameState,
   penalties: Penalties = DEFAULT_PENALTIES,
 ): HintResult {
-  if (s.status !== 'playing') return { state: s, hint: { kind: 'none' } };
+  if (s.status !== 'playing' || !hintsAllowed(s)) return { state: s, hint: { kind: 'none' } };
   const hint = getHint(s.values, parseGrid(s.solution));
   if (hint.kind === 'none') return { state: s, hint };
   return {

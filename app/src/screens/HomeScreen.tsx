@@ -10,6 +10,7 @@ import { Logo } from '../components/Logo';
 import { Button, Card } from '../components/ui';
 import { formatTime } from '../format';
 import { weekdayName } from '../i18n';
+import { usePro } from '../pro/context';
 import { useApp } from '../store';
 import { Colors, useColors } from '../theme';
 
@@ -30,17 +31,22 @@ export function HomeScreen({ onOpenGame, onStats, onSettings }: Props) {
   const contentWidth = Math.min(width - 24, 460);
   const [dialog, setDialog] = useState<Dialog>(null);
   const [autoCheck, setAutoCheck] = useState(data.settings.lastAutoCheck);
+  const { isPro } = usePro();
+  const [noAids, setNoAids] = useState(!!data.settings.lastNoAids);
+
+  const openStart = (slot: Slot) => {
+    setAutoCheck(data.settings.lastAutoCheck);
+    setNoAids(!!data.settings.lastNoAids);
+    setDialog({ kind: 'start', slot });
+  };
 
   const choose = (slot: Slot) => {
     if (data.games[slot]) setDialog({ kind: 'ongoing', slot });
-    else {
-      setAutoCheck(data.settings.lastAutoCheck);
-      setDialog({ kind: 'start', slot });
-    }
+    else openStart(slot);
   };
 
   const start = (slot: Slot) => {
-    startGame({ slot, autoCheck });
+    startGame({ slot, autoCheck, noAids: isPro && noAids });
     setDialog(null);
     onOpenGame(slot);
   };
@@ -137,8 +143,7 @@ export function HomeScreen({ onOpenGame, onStats, onSettings }: Props) {
                   colors={colors}
                   onPress={() => {
                     discardGame(dialog.slot);
-                    setAutoCheck(data.settings.lastAutoCheck);
-                    setDialog({ kind: 'start', slot: dialog.slot });
+                    openStart(dialog.slot);
                   }}
                 />
               )}
@@ -148,20 +153,39 @@ export function HomeScreen({ onOpenGame, onStats, onSettings }: Props) {
           {dialog?.kind === 'start' && (
             <Card colors={colors} style={{ width: contentWidth }}>
               <Text style={[styles.dialogTitle, { color: colors.text }]}>{slotTitle(dialog.slot)}</Text>
-              <View style={styles.switchRow}>
-                <Text style={{ color: colors.text, fontSize: 17 }}>{t('autoCheck')}</Text>
-                <Switch
-                  value={autoCheck}
-                  onValueChange={setAutoCheck}
-                  trackColor={{ true: colors.accent, false: colors.border }}
-                  accessibilityLabel={t('autoCheck')}
-                />
-              </View>
-              <Text style={{ color: colors.text }}>
-                {autoCheck
-                  ? t('autoCheckOn', { penalty: DEFAULT_PENALTIES.errorMs / 1000 })
-                  : t('autoCheckOff')}
-              </Text>
+              {isPro ? (
+                <View style={styles.switchRow}>
+                  <Text style={{ color: colors.text, fontSize: 17 }}>{t('noAids')}</Text>
+                  <Switch
+                    value={noAids}
+                    onValueChange={setNoAids}
+                    trackColor={{ true: colors.accent, false: colors.border }}
+                    accessibilityLabel={t('noAids')}
+                  />
+                </View>
+              ) : (
+                <Text style={{ color: colors.muted, fontSize: 13 }}>{t('noAidsNeedsPro')}</Text>
+              )}
+              {isPro && noAids ? (
+                <Text style={{ color: colors.text }}>{t('noAidsOn')}</Text>
+              ) : (
+                <>
+                  <View style={styles.switchRow}>
+                    <Text style={{ color: colors.text, fontSize: 17 }}>{t('autoCheck')}</Text>
+                    <Switch
+                      value={autoCheck}
+                      onValueChange={setAutoCheck}
+                      trackColor={{ true: colors.accent, false: colors.border }}
+                      accessibilityLabel={t('autoCheck')}
+                    />
+                  </View>
+                  <Text style={{ color: colors.text }}>
+                    {autoCheck
+                      ? t('autoCheckOn', { penalty: DEFAULT_PENALTIES.errorMs / 1000 })
+                      : t('autoCheckOff')}
+                  </Text>
+                </>
+              )}
               <Text style={{ color: colors.muted, fontSize: 13 }}>{t('autoCheckLocked')}</Text>
               <View style={{ flexDirection: 'row', gap: 8 }}>
                 <Button label={t('cancel')} colors={colors} onPress={() => setDialog(null)} style={{ flex: 1 }} />

@@ -21,6 +21,7 @@ import {
   enterDigit,
   eraseCell,
   GameState,
+  hintsAllowed,
   isRunning,
   pause,
   RecordResult,
@@ -41,7 +42,7 @@ import { useColors } from '../theme';
 interface Props {
   slot: Slot;
   onHome: () => void;
-  onPlayAgain: (slot: Slot, autoCheck: boolean) => void;
+  onPlayAgain: (slot: Slot, autoCheck: boolean, noAids: boolean) => void;
 }
 
 export function GameScreen({ slot, onHome, onPlayAgain }: Props) {
@@ -205,7 +206,8 @@ export function GameScreen({ slot, onHome, onPlayAgain }: Props) {
       : [];
 
   const levelName = LEVEL_NAMES[lang][game.level];
-  const title = game.dailyDate ? `${t('dailyPuzzle')} · ${levelName}` : levelName;
+  const baseTitle = game.dailyDate ? `${t('dailyPuzzle')} · ${levelName}` : levelName;
+  const title = game.noAids ? `${baseTitle} · ${t('noAids')}` : baseTitle;
 
   const timer = (
     <View style={{ alignItems: 'flex-end' }}>
@@ -264,9 +266,11 @@ export function GameScreen({ slot, onHome, onPlayAgain }: Props) {
           <View style={styles.tools}>
             <ToolButton label={t('erase')} onPress={onErase} disabled={paused} colors={colors} />
             <ToolButton
-              label={`${t('hint')} (+${DEFAULT_PENALTIES.hintMs / 1000} s)`}
+              label={
+                hintsAllowed(game) ? `${t('hint')} (+${DEFAULT_PENALTIES.hintMs / 1000} s)` : t('hintOff')
+              }
               onPress={onHint}
-              disabled={paused}
+              disabled={paused || !hintsAllowed(game)}
               colors={colors}
             />
             <ToolButton
@@ -307,7 +311,7 @@ export function GameScreen({ slot, onHome, onPlayAgain }: Props) {
           game={game}
           result={result}
           onHome={onHome}
-          onPlayAgain={game.dailyDate ? undefined : () => onPlayAgain(slot, game.autoCheck)}
+          onPlayAgain={game.dailyDate ? undefined : () => onPlayAgain(slot, game.autoCheck, !!game.noAids)}
         />
       )}
     </ScrollView>
@@ -383,7 +387,7 @@ function ResultCard({
         ))}
       </View>
       <Text style={{ color: colors.muted, fontSize: 13 }}>
-        {game.autoCheck ? t('withAutoCheck') : t('withoutAutoCheck')}
+        {game.noAids ? t('noAids') : game.autoCheck ? t('withAutoCheck') : t('withoutAutoCheck')}
       </Text>
       <View style={{ flexDirection: 'row', gap: 8 }}>
         <Button label={t('home')} colors={colors} onPress={onHome} style={{ flex: 1 }} />

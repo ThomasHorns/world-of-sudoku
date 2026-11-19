@@ -11,6 +11,8 @@ import {
   enterDigit,
   eraseCell,
   GameState,
+  hintsAllowed,
+  isLeaderboardEligible,
   isWrong,
   pause,
   pickPuzzle,
@@ -176,6 +178,58 @@ describe('tips', () => {
     const r = requestHint(g);
     expect(r.hint).toEqual({ kind: 'error' });
     expect(r.state.penaltyMs).toBe(DEFAULT_PENALTIES.hintMs);
+  });
+});
+
+describe('uten hjelpemidler', () => {
+  const noAidsGame = (now = 0) =>
+    createGame({
+      puzzleId: '3-0001',
+      puzzle: PUZZLE,
+      solution: SOLUTION,
+      level: 3,
+      slot: 'level-3',
+      autoCheck: true, // skal overstyres
+      noAids: true,
+      now,
+    });
+
+  it('slår alltid av auto-sjekk', () => {
+    const g = noAidsGame();
+    expect(g.noAids).toBe(true);
+    expect(g.autoCheck).toBe(false);
+    expect(showErrors(g)).toBe(false);
+  });
+
+  it('gir ingen tips og ingen straff for tips', () => {
+    const r = requestHint(noAidsGame());
+    expect(r.hint).toEqual({ kind: 'none' });
+    expect(r.state.hintCount).toBe(0);
+    expect(r.state.penaltyMs).toBe(0);
+    expect(hintsAllowed(r.state)).toBe(false);
+  });
+
+  it('tillater notater', () => {
+    expect(toggleNote(noAidsGame(), 2, 4).notes[2]).toBe(1 << 3);
+  });
+
+  it('kan registreres på topplisten når brettet er løst', () => {
+    let g = fillAll(noAidsGame(0), 0);
+    expect(isLeaderboardEligible(g)).toBe(false); // ikke levert ennå
+    g = submit(g, 90_000);
+    expect(g.status).toBe('won');
+    expect(isLeaderboardEligible(g)).toBe(true);
+  });
+
+  it('teller ikke tapte spill eller vanlige spill', () => {
+    let lost = fillAll(noAidsGame(0), 0, [2]);
+    lost = submit(enterDigit(lost, 2, 1, 0).state, 1000);
+    expect(lost.status).toBe('lost');
+    expect(isLeaderboardEligible(lost)).toBe(false);
+
+    const normal = submit(fillAll(newGame(false, 0), 0), 1000);
+    expect(normal.status).toBe('won');
+    expect(isLeaderboardEligible(normal)).toBe(false);
   });
 });
 

@@ -10,6 +10,7 @@ import { GameScreen } from './src/screens/GameScreen';
 import { HomeScreen } from './src/screens/HomeScreen';
 import { SettingsScreen } from './src/screens/SettingsScreen';
 import { StatsScreen } from './src/screens/StatsScreen';
+import { ProProvider } from './src/pro/provider';
 import { AppProvider, useApp } from './src/store';
 import { useColors } from './src/theme';
 
@@ -62,8 +63,8 @@ function Screens() {
           key={route.key}
           slot={route.slot}
           onHome={home}
-          onPlayAgain={(slot, autoCheck) => {
-            startGame({ slot, autoCheck });
+          onPlayAgain={(slot, autoCheck, noAids) => {
+            startGame({ slot, autoCheck, noAids });
             setRoute({ name: 'game', slot, key: Date.now() });
           }}
         />
@@ -79,7 +80,9 @@ export default function App() {
   return (
     <SafeAreaProvider>
       <AppProvider>
-        <Screens />
+        <ProProvider>
+          <Screens />
+        </ProProvider>
       </AppProvider>
     </SafeAreaProvider>
   );

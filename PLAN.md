@@ -16,7 +16,9 @@ Avklart 17.11: brettbank, nivånavn, teknikkinndeling, tilleggsfunksjoner, auto-
 
 Fase 1 (enspiller) er ferdig og testet på iPhone med Expo Go. Fase 2 (lansering) pågår. 19.11 ble planen endret: iPhone og iPad lanseres først, og Android er satt på pause. Konfigurasjon, ikoner, personvernerklæring og butikktekster for begge plattformer er klare.
 
-Neste steg: listen «Gjenstår for iPhone» under fase 2 i kapittel 6. Første punkt er Apple Developer-kontoen.
+19.11 ble det også besluttet annonser, et Pro-kjøp og topplister i Game Center før lansering (fase 2b i kapittel 6). Notatknappene er gjort like store som tallknappene.
+
+Neste steg: fase 2b, med utviklerversjon for iPhone først. Lanseringslisten «Gjenstår for iPhone» fortsetter når fase 2b er ferdig.
 
 ---
 
@@ -37,7 +39,7 @@ En sudoku-app for mobil der alle spill tas tid på.
 | Plattform | iOS og Android, én felles kodebase |
 | Teknologi | Expo / React Native (TypeScript) + Supabase som backend |
 | Språk | Norsk og engelsk fra start |
-| Forretningsmodell | Første versjon: gratis, uten annonser og kjøp. Senere inntekt er ikke bestemt |
+| Forretningsmodell | Endret 19.11: gratis nedlasting med annonser. Engangskjøp «Pro» (49 kr) fjerner annonser og gir tilgang til topplister. Se fase 2b |
 | Utgiver | Privatperson. iPhone og iPad lanseres først (endret 19.11), Android senere |
 | App-ID | `mchorn.worldofsudoku` (Android og iOS) |
 | Konto | Ingen innlogging i enspiller-fasen. Alt lagres lokalt på telefonen |
@@ -221,7 +223,7 @@ Lokal lagring i fase 1: pågående spill, statistikk og innstillinger ligger på
 **Gjenstår for iPhone (krever deg):**
 1. ~~Melde deg inn i Apple Developer Program~~ – godkjent 19.11. Første iOS-bygg (production, byggnummer 2) er ferdig. Sertifikater og profiler er laget av EAS og lagres hos Expo.
 2. Velge kontakt-e-post (åpent spørsmål 17).
-3. Publisere personvernerklæring og en support-side på Google Sites.
+3. ~~Publisere personvernerklæring og support-side~~ – gjort 19.11: https://sites.google.com/view/world-of-sudoku/start
 4. Opprette appen i App Store Connect (her vises det om navnet er ledig).
 5. Bygge for iOS med EAS (du logger inn med Apple-ID-en i terminalen) og laste opp til TestFlight.
 6. Teste med TestFlight på iPhone og iPad. Justere straff og nivåer ved behov.
@@ -234,6 +236,58 @@ Lokal lagring i fase 1: pågående spill, statistikk og innstillinger ligger på
 3. Funksjonsgrafikk og skjermbilder for Google Play.
 4. Opprette appen i Play Console, fylle ut skjemaene og starte lukket test med 12 testere i 14 dager.
 5. Søke om produksjonstilgang og publisere.
+
+### Fase 2b – Annonser, Pro og toppliste (før lansering)
+
+Besluttet 19.11. Dette kommer med i første versjon i App Store.
+
+**Annonser (gratisversjonen)**
+
+| Tema | Beslutning |
+|---|---|
+| Nettverk | Google AdMob. App-ID (iOS): `ca-app-pub-3041624447235807~3132374765`. Banner «Hjem banner»: `ca-app-pub-3041624447235807/6362666624`. Mellomannonse «Mellom spill»: `ca-app-pub-3041624447235807/1510182232`. GDPR-melding og IDFA-forklaring er publisert i AdMob (19.11). Under utvikling brukes Googles test-ID-er |
+| Banner | Liten banner nederst på hjem, statistikk og innstillinger. **Ikke** på spillskjermen |
+| Mellomannonse | Fullskjermsannonse etter hvert 2. fullførte spill |
+| Sporing | Appen spør om sporing (Apples «Tillat sporing?») for personlige annonser, og viser EU-samtykke (GDPR) via AdMobs samtykkeskjema. Sier brukeren nei, vises ikke-personlige annonser |
+
+**Pro (engangskjøp)**
+
+| Tema | Beslutning |
+|---|---|
+| Pris | 49 kr, engangskjøp i App Store |
+| Gir | Ingen annonser, og spill uten hjelpemidler registreres på topplistene |
+| Gjenopprett kjøp | Knapp i innstillinger (Apple krever det) |
+| Modus | Pro-brukere velger «uten hjelpemidler» ved start. Vanlig spill med hjelpemidler finnes fortsatt for alle |
+| Uten hjelpemidler | Auto-sjekk og tips er av. Notater og markering av like tall er tillatt |
+
+**Topplister (Apple Game Center)**
+
+| Tema | Beslutning |
+|---|---|
+| Teknologi | Apple Game Center. Spilleren bruker sitt Game Center-navn. Bare iPhone/iPad – Android trenger en egen løsning senere, og listene blir ikke felles |
+| Hva teller | Bare løste spill uten hjelpemidler, spilt av Pro-brukere. Tapte leveringer teller ikke |
+| Lister per nivå | Raskeste tid, og flest løste brett |
+| Perioder | Totalt, denne uken og denne måneden |
+| Dagens brett | Teller på nivåets lister, og har i tillegg en egen liste per dag (alle har spilt samme brett) |
+
+Det gir 5 nivåer × 2 lister × 3 perioder = 30 lister, pluss én daglig liste for dagens brett. Listene opprettes i App Store Connect.
+
+**Konsekvenser (må gjøres eller endres):**
+- **Expo Go kan ikke lenger brukes til testing.** Annonser, kjøp og Game Center krever native moduler. Testing skjer med en egen utviklerversjon (development build) eller via TestFlight. iPhonen din må registreres hos Expo for utviklerversjonen.
+- **Personvern:** `store/personvern.md` og personvernskjemaet i App Store («App Privacy») må skrives om. Appen samler nå inn data via AdMob (enhets-ID, annonsedata, sporing), og Game Center deler resultater med Apple.
+- **Butikktekster:** «ingen annonser» og «ingen innsamling av data» må fjernes fra `store/app-store.md` og `store/google-play.md`.
+- **Kontoer og avtaler (du):** AdMob-konto med bankinformasjon. Avtalen for betalte apper («Paid Apps Agreement») med bank- og skatteinformasjon i App Store Connect. Game Center slås på for appen.
+- **Pakker som skal velges og sjekkes mot Expo SDK 58-dokumentasjonen ved implementering:** AdMob (f.eks. `react-native-google-mobile-ads`), sporingsspørsmål (`expo-tracking-transparency`), kjøp (f.eks. `expo-iap`, `react-native-iap` eller RevenueCat) og Game Center (ingen offisiell Expo-modul – kan kreve en egen liten native modul).
+- **Juks:** Game Center-lister kan i teorien manipuleres. Appen sender bare resultater fra spill den selv har sett fullført, men det finnes ingen servervalidering før fase 3/4.
+- **Det eksisterende iOS-bygget (byggnummer 2)** har ikke annonser eller Pro. Det kan brukes til å teste spillet i TestFlight, men et nytt bygg trengs før lansering.
+
+**Rekkefølge (forslag):**
+1. ~~Utviklerversjon (development build) for iPhone~~ – gjort 19.11: `expo-dev-client` og byggprofilen `development` er lagt til, iPhonen er registrert, og utviklerversjonen er bygget og installert. Start med `npx expo start` i `app/`, så åpner utviklerversjonen koden fra PC-en. Modusen «uten hjelpemidler» er lagt inn i spillreglene (`packages/game`), men vises ikke i appen før Pro-kjøpet er laget.
+2. Pro-kjøp og «uten hjelpemidler»-modus – kode ferdig 19.11: `expo-iap` (6.5.1) direkte mot App Store, produkt-ID `worldofsudoku_pro`. Pro-seksjon med kjøp og «Gjenopprett kjøp» i innstillinger, valg av «uten hjelpemidler» ved start (bare Pro), «Tips av» og modus i tittel og resultat. Testet i nettleser med et testkjøp som bare finnes på web i utviklingsmodus. **Gjenstår:** oppsett i App Store Connect (se `store/app-store.md`), ny utviklerversjon og testkjøp på iPhone.
+3. Game Center og topplister.
+4. AdMob med samtykke og sporingsspørsmål. Innstillinger må få en knapp for å endre annonsesamtykket, fordi personvernerklæringen lover det.
+5. Ny personvernerklæring, butikktekster og App Privacy.
+6. Nytt bygg til TestFlight.
 
 ### Fase 3 – Kontoer og backend
 - Innlogging via Supabase.
@@ -270,7 +324,7 @@ Vennekamper, turneringer, sesonger, temaer, eventuell inntektsmodell.
 
 **Før lansering (fase 2)**
 16. ~~Navnet~~ – avklart 17.11: «World of Sudoku» beholdes, selv om en liten app med samme navn finnes fra før.
-17. Kontakt-e-post som vises offentlig i butikken og i personvernerklæringen. Bestemmes senere – feltet står som [E-POSTADRESSE] til da.
+17. ~~Kontakt-e-post~~ – avklart 19.11: thomas.hornsletten@gmail.com.
 18. ~~Publisering av personvernerklæringen~~ – avklart 17.11: Google Sites.
 19. ~~Målgruppe~~ – avklart 17.11: 13 år og eldre.
 

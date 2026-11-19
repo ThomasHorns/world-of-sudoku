@@ -41,7 +41,8 @@
             "backgroundColor": "#2C2C2A"
           }
         }
-      ]
+      ],
+      "expo-iap"
     ],
     "extra": {
       "eas": {

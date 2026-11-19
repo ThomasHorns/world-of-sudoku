@@ -33,7 +33,14 @@ export interface AppData {
   played: Record<string, string[]>;
   /** Ferdige dagens brett: dato -> tid og om det ble løst. */
   dailyDone: Record<string, { ms: number; won?: boolean }>;
-  settings: { language: LanguageSetting; lastAutoCheck: boolean };
+  settings: {
+    language: LanguageSetting;
+    lastAutoCheck: boolean;
+    /** Sist valgt «uten hjelpemidler» (bare for Pro). */
+    lastNoAids?: boolean;
+    /** Har kjøpt Pro. Bekreftes på nytt mot App Store ved oppstart. */
+    isPro?: boolean;
+  };
 }
 
 function defaultData(): AppData {
@@ -71,6 +78,8 @@ function normalize(raw: Partial<AppData> | null, today: string): AppData {
 export interface StartOptions {
   slot: Slot;
   autoCheck: boolean;
+  /** Uten hjelpemidler (krever Pro). */
+  noAids?: boolean;
 }
 
 interface AppContextValue {
@@ -84,6 +93,7 @@ interface AppContextValue {
   startGame: (opts: StartOptions) => GameState;
   completeGame: (game: GameState) => RecordResult;
   setLanguage: (language: LanguageSetting) => void;
+  setPro: (isPro: boolean) => void;
 }
 
 const AppContext = createContext<AppContextValue | null>(null);
@@ -137,7 +147,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   );
 
   const startGame = useCallback(
-    ({ slot, autoCheck }: StartOptions): GameState => {
+    ({ slot, autoCheck, noAids }: StartOptions): GameState => {
       const d = dataRef.current!;
       const isDaily = slot === 'daily';
       const level = isDaily ? dailyLevel(today) : (Number(slot.split('-')[1]) as Level);
@@ -153,6 +163,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         slot,
         dailyDate: isDaily ? today : null,
         autoCheck,
+        noAids: !!noAids && !!d.settings.isPro,
         now: Date.now(),
       });
       update((prev) => {
@@ -163,7 +174,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
           ...prev,
           games: { ...prev.games, [slot]: game },
           played: { ...prev.played, [level]: played },
-          settings: { ...prev.settings, lastAutoCheck: autoCheck },
+          settings: { ...prev.settings, lastAutoCheck: autoCheck, lastNoAids: !!noAids },
         };
       });
       return game;
@@ -194,6 +205,12 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     [update],
   );
 
+  const setPro = useCallback(
+    (isPro: boolean) =>
+      update((d) => (d.settings.isPro === isPro ? d : { ...d, settings: { ...d.settings, isPro } })),
+    [update],
+  );
+
   const value = useMemo<AppContextValue | null>(() => {
     if (!data) return null;
     const lang = resolveLanguage(data.settings.language);
@@ -208,8 +225,9 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       startGame,
       completeGame,
       setLanguage,
+      setPro,
     };
-  }, [data, today, saveGame, discardGame, startGame, completeGame, setLanguage]);
+  }, [data, today, saveGame, discardGame, startGame, completeGame, setLanguage, setPro]);
 
   // Vent til lagrede data er lest før noe vises.
   if (!value) return null;

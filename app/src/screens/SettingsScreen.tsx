@@ -4,13 +4,15 @@
  */
 import React from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
-import { Card, Header } from '../components/ui';
+import { Button, Card, Header } from '../components/ui';
 import { LanguageSetting } from '../i18n';
+import { usePro } from '../pro/context';
 import { useApp } from '../store';
 import { useColors } from '../theme';
 
 export function SettingsScreen({ onBack }: { onBack: () => void }) {
   const { data, t, setLanguage } = useApp();
+  const pro = usePro();
   const colors = useColors();
   const { width } = useWindowDimensions();
   const contentWidth = Math.min(width - 24, 460);
@@ -24,6 +26,36 @@ export function SettingsScreen({ onBack }: { onBack: () => void }) {
   return (
     <ScrollView contentContainerStyle={[styles.container, { width: contentWidth }]}>
       <Header title={t('settings')} onBack={onBack} backLabel={t('home')} colors={colors} />
+      <Card colors={colors}>
+        <Text style={{ color: colors.text, fontSize: 17, fontWeight: '500' }}>{t('proTitle')}</Text>
+        {pro.isPro ? (
+          <Text style={{ color: colors.success }}>{t('proOwned')}</Text>
+        ) : (
+          <>
+            <Text style={{ color: colors.text, lineHeight: 21 }}>{t('proBody')}</Text>
+            <Button
+              label={pro.price ? t('proBuy', { price: pro.price }) : t('proBuyNoPrice')}
+              variant="primary"
+              colors={colors}
+              disabled={pro.busy}
+              onPress={() => {
+                pro.clearMessage();
+                pro.buy();
+              }}
+            />
+          </>
+        )}
+        <Button
+          label={t('proRestore')}
+          colors={colors}
+          disabled={pro.busy}
+          onPress={() => {
+            pro.clearMessage();
+            pro.restore();
+          }}
+        />
+        {pro.message && <Text style={{ color: colors.muted, fontSize: 13 }}>{t(pro.message)}</Text>}
+      </Card>
       <Card colors={colors}>
         <Text style={{ color: colors.text, fontSize: 17, fontWeight: '500' }}>{t('language')}</Text>
         <View style={{ gap: 8 }}>

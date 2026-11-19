@@ -66,6 +66,20 @@ const nb = {
   languageAuto: 'Som telefonen',
   ok: 'OK',
   confirmLeaveTitle: 'Gå til hjem?',
+  proTitle: 'World of Sudoku Pro',
+  proBody:
+    'Fjerner alle annonser og gir deg modusen «uten hjelpemidler», der løste brett registreres på topplistene. Engangskjøp.',
+  proBuy: 'Kjøp Pro – {price}',
+  proBuyNoPrice: 'Kjøp Pro',
+  proOwned: 'Du har Pro. Takk for støtten!',
+  proRestore: 'Gjenopprett kjøp',
+  storeUnavailable: 'App Store er ikke tilgjengelig akkurat nå. Prøv igjen senere.',
+  purchaseFailed: 'Kjøpet ble ikke fullført. Prøv igjen.',
+  restoreDone: 'Ferdig. Har du kjøpt Pro før, er det nå aktivert.',
+  noAids: 'Uten hjelpemidler',
+  noAidsOn: 'Auto-sjekk og tips er av. Notater og markering er tillatt. Løste brett registreres på topplisten.',
+  noAidsNeedsPro: 'Uten hjelpemidler og toppliste krever Pro (se innstillinger).',
+  hintOff: 'Tips av',
 } as const;
 
 export type TextKey = keyof typeof nb;
@@ -119,6 +133,20 @@ const en: Record<TextKey, string> = {
   languageAuto: 'Same as phone',
   ok: 'OK',
   confirmLeaveTitle: 'Go home?',
+  proTitle: 'World of Sudoku Pro',
+  proBody:
+    'Removes all ads and unlocks the "no aids" mode, where solved puzzles are recorded on the leaderboards. One-time purchase.',
+  proBuy: 'Buy Pro – {price}',
+  proBuyNoPrice: 'Buy Pro',
+  proOwned: 'You have Pro. Thanks for your support!',
+  proRestore: 'Restore purchases',
+  storeUnavailable: 'The App Store is not available right now. Please try again later.',
+  purchaseFailed: 'The purchase was not completed. Please try again.',
+  restoreDone: 'Done. If you have bought Pro before, it is now active.',
+  noAids: 'No aids',
+  noAidsOn: 'Auto-check and hints are off. Notes and highlighting are allowed. Solved puzzles are recorded on the leaderboard.',
+  noAidsNeedsPro: 'No aids and leaderboards require Pro (see settings).',
+  hintOff: 'Hints off',
 };
 
 const TEXTS: Record<Lang, Record<TextKey, string>> = { nb, en };
