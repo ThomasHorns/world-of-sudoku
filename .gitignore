@@ -10,3 +10,7 @@ web-build/
 
 # Apple API-nøkler skal aldri i git
 *.p8
+
+# Private notater og løse skjermbilder i rotmappen
+/*.txt
+/*.png
