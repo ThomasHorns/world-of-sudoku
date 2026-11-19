@@ -22,7 +22,18 @@ Utkast til App Store Connect. Felt i [HAKEPARENTES] må fylles inn. Kravene unde
 
 ## Personvern i App Store («App Privacy»)
 
-Velg **Data Not Collected** («Ingen data samles inn»). Appen lagrer bare spill, statistikk og innstillinger lokalt på enheten.
+Etter at AdMob kom inn (19.11) samler **annonsene** inn data. Appen selv sender ingenting ut. Svar «Yes, we collect data» og velg disse seks typene (basert på Googles oversikt for Google Mobile Ads SDK; fordelingen på linked/tracking er en forsiktig vurdering):
+
+| Type | Formål | Linked to user | Used for tracking |
+|---|---|---|---|
+| Location → Coarse Location | Third-Party Advertising | Yes | Yes |
+| Identifiers → Device ID | Third-Party Advertising, Analytics | Yes | Yes |
+| Usage Data → Product Interaction | Third-Party Advertising, Analytics | Yes | Yes |
+| Usage Data → Advertising Data | Third-Party Advertising, Analytics | Yes | Yes |
+| Diagnostics → Crash Data | Analytics | No | No |
+| Diagnostics → Performance Data | Analytics, Third-Party Advertising | Yes | No |
+
+Ikke oppgi kjøp (håndteres av Apple), Game Center (Apples tjeneste) eller spill/statistikk (bare lokalt). Kilde: https://developers.google.com/admob/ios/privacy/data-disclosure
 
 ## Butikktekster – norsk
 

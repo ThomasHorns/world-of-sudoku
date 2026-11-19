@@ -10,15 +10,21 @@ Dokumentet skiller mellom tre ting:
 
 ## Status – her fortsetter vi
 
-Fase 0 er ferdig (17.11): motor, tester, brettbank og Expo-app er på plass (se kapittel 6). Fase 0 er committet i git (main).
+**Sist oppdatert 19.11 kveld.** Alt er committet og pushet til GitHub (main).
 
-Avklart 17.11: brettbank, nivånavn, teknikkinndeling, tilleggsfunksjoner, auto-sjekk (inkl. levering, avslutning og tips ved feil), lagring, appnavn, utseende (stil A, notatrad, klassisk rutenett), blå aksentfarge og logo A.
+**Ferdig:** fase 0 og 1 (motor, enspiller), fase 2b i kode og testet på iPhone med utviklerversjonen: Pro-kjøp (sandbox-kjøp virker), «uten hjelpemidler», Game Center (31 lister opprettet, innsending virker – se logg-linjer `[toppliste]` i utviklerserveren), AdMob (samtykke, banner, mellomannonse). iPhone-skjermbilder (6 engelske + 6 norske, 1206×2622) er lastet opp i App Store Connect. Personvernside: https://sites.google.com/view/world-of-sudoku/start
 
-Fase 1 (enspiller) er ferdig og testet på iPhone med Expo Go. Fase 2 (lansering) pågår. 19.11 ble planen endret: iPhone og iPad lanseres først, og Android er satt på pause. Konfigurasjon, ikoner, personvernerklæring og butikktekster for begge plattformer er klare.
+**Lanseringsmål:** iPhone og iPad først (Android på pause). PVP kommer etter lansering (fase 4).
 
-19.11 ble det også besluttet annonser, et Pro-kjøp og topplister i Game Center før lansering (fase 2b i kapittel 6). Notatknappene er gjort like store som tallknappene.
+**Neste steg, i rekkefølge:**
+1. **iPad:** registrer iPaden (`npx eas-cli@latest device:create` i `app/`, brukeren åpner lenken på iPaden og installerer profilen). Bygg utviklerversjonen på nytt (`npx eas-cli@latest build --platform ios --profile development`, svar **No** på «reuse the profile» og velg begge enhetene). Ta 6 skjermbilder per språk på iPad, legg dem i `store/screenshots/raw/ipad/{en,no}/1–6.png` og kjør `npm run make-screenshots` (2064×2752).
+2. **App Privacy** i App Store Connect (AdMob-data: se tabellen i samtalen/`store/app-store.md` – Coarse Location, Device ID, Product Interaction, Advertising Data = tracking; Crash/Performance Data = analytics).
+3. **App Information:** undertittel, kategori Games → Puzzle, aldersgrense 4+.
+4. **Produksjonsbygg** (`--profile production`): bruker ekte AdMob-ID-er. Signeringsprofilen for App Store må lages på nytt med Game Center (svar No på gjenbruk). Last opp med `eas submit --platform ios --latest`, test i TestFlight.
+5. **Versjonssiden:** velg bygget, huk av Game Center og legg til listene, fyll inn iPad-skjermbilder, send til gjennomgang (Pro-kjøpet sendes sammen med versjonen).
+6. Til slutt (valgfritt): endelig logo, nytt skjermbilde til Pro-produktet med pris.
 
-Neste steg: fase 2b, med utviklerversjon for iPhone først. Lanseringslisten «Gjenstår for iPhone» fortsetter når fase 2b er ferdig.
+**Praktisk:** utviklerserveren startes med `npx expo start` i `app/`. Git krever `-c safe.directory=*` (D: er exFAT). Sjekk nye filer før commit (`git status --untracked-files=all`) – private notater skal ikke i git.
 
 ---
 
