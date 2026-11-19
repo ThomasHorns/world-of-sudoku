@@ -118,7 +118,8 @@ Apple krever skjermbilder for de største skjermstørrelsene (andre størrelser 
 
 | Enhet | Størrelse (stående) | Antall |
 |---|---|---|
-| iPhone 6,9" | 1320 × 2868 (eller 1290 × 2796) | 1–10, anbefalt 4–6 |
+| iPhone with Dynamic Island (medium display) | 1206 × 2622 (eller 1179 × 2556) – ferdige i `store/screenshots/iphone/` | 1–10, anbefalt 4–6 |
+| iPhone 6,9" (hvis Apple ber om den) | 1320 × 2868 – ferdige i `store/screenshots/iphone-6.9/` | |
 | iPad 13" | 2064 × 2752 (eller 2048 × 2732) | 1–10, anbefalt 4–6 |
 
 Uten Mac kan skjermbildene tas fra TestFlight-versjonen på din egen iPhone, og på en iPad (egen eller lånt). Alternativt kan jeg lage dem fra web-versjonen i riktig størrelse.

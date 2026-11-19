@@ -14,3 +14,4 @@ web-build/
 # Private notater og løse skjermbilder i rotmappen
 /*.txt
 /*.png
+/pic/

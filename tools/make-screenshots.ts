@@ -31,11 +31,23 @@ const CAPTIONS: Record<number, { en: string; no: string }> = {
   6: { en: 'Light and\ndark mode', no: 'Lys og\nmørk modus' },
 };
 
-/** Størrelser Apple krever (stående). */
+/**
+ * Størrelser Apple krever (stående).
+ * App Store Connect ber nå om «iPhone with Dynamic Island (medium display)»: 1206 × 2622 eller 1179 × 2556.
+ * 6,9"-størrelsen (1320 × 2868) lages også, i tilfelle den trengs.
+ */
 const DEVICES = {
-  iphone: { width: 1320, height: 2868, captionTop: 210, fontSize: 112, shotWidth: 0.8, shotTop: 640 },
+  iphone: { width: 1206, height: 2622, captionTop: 192, fontSize: 102, shotWidth: 0.8, shotTop: 585 },
+  'iphone-6.9': { width: 1320, height: 2868, captionTop: 210, fontSize: 112, shotWidth: 0.8, shotTop: 640 },
   ipad: { width: 2064, height: 2752, captionTop: 190, fontSize: 120, shotWidth: 0.74, shotTop: 600 },
 } as const;
+
+/** Hvilken råbilde-mappe hver størrelse bruker. */
+const RAW_FOLDER: Record<keyof typeof DEVICES, string> = {
+  iphone: 'iphone',
+  'iphone-6.9': 'iphone',
+  ipad: 'ipad',
+};
 
 type Device = keyof typeof DEVICES;
 type Lang = 'en' | 'no';
@@ -96,7 +108,7 @@ async function main() {
   let count = 0;
   for (const device of Object.keys(DEVICES) as Device[]) {
     for (const lang of ['en', 'no'] as Lang[]) {
-      const dir = join(rawDir, device, lang);
+      const dir = join(rawDir, RAW_FOLDER[device], lang);
       if (!existsSync(dir)) continue;
       const files = readdirSync(dir).filter((f) => /^\d+\.(png|jpe?g|webp)$/i.test(f));
       if (files.length === 0) continue;
