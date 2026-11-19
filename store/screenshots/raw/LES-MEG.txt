@@ -1,0 +1,1 @@
+Legg råbilder her som 1.png … 6.png (se tools/make-screenshots.ts).

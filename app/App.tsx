@@ -35,13 +35,16 @@ function GameCenterSync() {
 
   useEffect(() => {
     if (isPro && GameCenter.gameCenterAvailable && !authed) {
-      GameCenter.authenticate().then(setAuthed);
+      GameCenter.authenticate().then((ok) => {
+        if (__DEV__) console.log(`[toppliste] Game Center-innlogging: ${ok}`);
+        setAuthed(ok);
+      });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isPro]);
 
   useEffect(() => {
-    if (authed && pending > 0) void flushLeaderboard();
+    if (pending > 0) void flushLeaderboard();
   }, [authed, pending, flushLeaderboard]);
 
   return null;

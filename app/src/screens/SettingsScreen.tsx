@@ -4,7 +4,7 @@
  */
 import React, { useState } from 'react';
 import * as GameCenter from '../../modules/game-center';
-import { Pressable, ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Switch, Text, useWindowDimensions, View } from 'react-native';
 import { Button, Card, Header } from '../components/ui';
 import { LanguageSetting } from '../i18n';
 import { useAds } from '../ads/context';
@@ -74,6 +74,19 @@ export function SettingsScreen({ onBack }: { onBack: () => void }) {
         />
         {pro.message && <Text style={{ color: colors.muted, fontSize: 13 }}>{t(pro.message)}</Text>}
       </Card>
+      {__DEV__ && (
+        <Card colors={colors}>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Text style={{ color: colors.text, fontSize: 16 }}>Skjermbildemodus (skjul annonser)</Text>
+            <Switch
+              value={ads.screenshotMode}
+              onValueChange={ads.setScreenshotMode}
+              trackColor={{ true: colors.accent, false: colors.border }}
+            />
+          </View>
+          <Text style={{ color: colors.muted, fontSize: 13 }}>Finnes bare i utviklerversjonen.</Text>
+        </Card>
+      )}
       {ads.privacyOptionsRequired && (
         <Card colors={colors}>
           <Text style={{ color: colors.text, fontSize: 17, fontWeight: '500' }}>{t('adPrivacy')}</Text>

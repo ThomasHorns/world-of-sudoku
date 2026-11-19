@@ -111,15 +111,23 @@ export function AdsProvider({ children }: { children: React.ReactNode }) {
     AdsConsent.showPrivacyOptionsForm().catch(() => {});
   }, []);
 
+  const [screenshotMode, setScreenshotMode] = useState(false);
+
   const value = useMemo<AdsContextValue>(
     () => ({
-      ready: ready && !isPro,
+      ready: ready && !isPro && !(__DEV__ && screenshotMode),
       privacyOptionsRequired: privacyOptionsRequired && !isPro,
       openPrivacyOptions,
       noteGameFinished,
-      showInterstitialIfDue,
+      showInterstitialIfDue: () => {
+        if (!(__DEV__ && screenshotMode)) showInterstitialIfDue();
+      },
+      screenshotMode: __DEV__ && screenshotMode,
+      setScreenshotMode: (on: boolean) => {
+        if (__DEV__) setScreenshotMode(on);
+      },
     }),
-    [ready, isPro, privacyOptionsRequired, openPrivacyOptions, noteGameFinished, showInterstitialIfDue],
+    [ready, isPro, privacyOptionsRequired, openPrivacyOptions, noteGameFinished, showInterstitialIfDue, screenshotMode],
   );
 
   return <AdsContext.Provider value={value}>{children}</AdsContext.Provider>;

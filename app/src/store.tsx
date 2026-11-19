@@ -223,8 +223,13 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
   const flushing = useRef(false);
   const flushLeaderboard = useCallback(async () => {
-    if (flushing.current || !GameCenter.gameCenterAvailable || !GameCenter.isAuthenticated()) return;
     const pending = dataRef.current?.leaderboard?.pending ?? [];
+    if (__DEV__) {
+      console.log(
+        `[toppliste] kø=${pending.length}, Game Center tilgjengelig=${GameCenter.gameCenterAvailable}, innlogget=${GameCenter.isAuthenticated()}`,
+      );
+    }
+    if (flushing.current || !GameCenter.gameCenterAvailable || !GameCenter.isAuthenticated()) return;
     if (pending.length === 0) return;
     flushing.current = true;
     const sent = new Set<ScoreSubmission>();
@@ -233,8 +238,10 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         try {
           await GameCenter.submitScore(s.score, [s.leaderboardId]);
           sent.add(s);
-        } catch {
+          if (__DEV__) console.log(`[toppliste] sendt ${s.leaderboardId} = ${s.score}`);
+        } catch (e) {
           // Prøves igjen neste gang (f.eks. uten nett).
+          if (__DEV__) console.warn(`[toppliste] feil ${s.leaderboardId}: ${String((e as Error)?.message ?? e)}`);
         }
       }
     } finally {

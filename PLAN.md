@@ -97,7 +97,7 @@ En sudoku-app for mobil der alle spill tas tid på.
 
 | Tema | Beslutning |
 |---|---|
-| Kampform | Begge får samme brett samtidig. Først ferdig vinner |
+| Kampform | Begge får samme brett samtidig. Først ferdig vinner. Detaljer (Pro, Game Center, nedtelling 5→0, Elo per nivå) under fase 4 i kapittel 6 |
 
 ## 3. Vurdering
 
@@ -281,9 +281,11 @@ Det gir 5 nivåer × 2 lister × 3 perioder = 30 lister, pluss én daglig liste 
 - **Juks:** Game Center-lister kan i teorien manipuleres. Appen sender bare resultater fra spill den selv har sett fullført, men det finnes ingen servervalidering før fase 3/4.
 - **Det eksisterende iOS-bygget (byggnummer 2)** har ikke annonser eller Pro. Det kan brukes til å teste spillet i TestFlight, men et nytt bygg trengs før lansering.
 
+**Bygg 19.11:** utviklerversjon med Pro, Game Center og AdMob er bygget (EAS-bygg `ff9a0e64`). Game Center måtte slås på manuelt for app-ID-en i Apple Developer (Identifiers → mchorn.worldofsudoku → Capabilities), fordi EAS ikke gjorde det selv. Da ble signeringsprofilen laget på nytt. Det samme vil gjelde App Store-profilen ved neste produksjonsbygg.
+
 **Rekkefølge (forslag):**
 1. ~~Utviklerversjon (development build) for iPhone~~ – gjort 19.11: `expo-dev-client` og byggprofilen `development` er lagt til, iPhonen er registrert, og utviklerversjonen er bygget og installert. Start med `npx expo start` i `app/`, så åpner utviklerversjonen koden fra PC-en. Modusen «uten hjelpemidler» er lagt inn i spillreglene (`packages/game`), men vises ikke i appen før Pro-kjøpet er laget.
-2. Pro-kjøp og «uten hjelpemidler»-modus – kode ferdig 19.11: `expo-iap` (6.5.1) direkte mot App Store, produkt-ID `worldofsudoku_pro`. Pro-seksjon med kjøp og «Gjenopprett kjøp» i innstillinger, valg av «uten hjelpemidler» ved start (bare Pro), «Tips av» og modus i tittel og resultat. Testet i nettleser med et testkjøp som bare finnes på web i utviklingsmodus. **Gjenstår:** oppsett i App Store Connect (se `store/app-store.md`), ny utviklerversjon og testkjøp på iPhone.
+2. Pro-kjøp og «uten hjelpemidler»-modus – kode ferdig 19.11: `expo-iap` (6.5.1) direkte mot App Store, produkt-ID `worldofsudoku_pro`. Pro-seksjon med kjøp og «Gjenopprett kjøp» i innstillinger, valg av «uten hjelpemidler» ved start (bare Pro), «Tips av» og modus i tittel og resultat. Testet i nettleser med et testkjøp som bare finnes på web i utviklingsmodus. **Testet på iPhone 19.11:** kjøpet virker med sandbox-testkonto, og Pro aktiveres. Det krevde at Paid Apps-avtalen (bank og skatt) var Active og at produktet hadde skjermbilde til gjennomgang. Etterpå gikk det noen timer før App Store fant produktet. Appen henter nå produktet på nytt ved kjøp hvis det ikke ble funnet ved oppstart.
 3. Game Center og topplister – kode ferdig 19.11: egen lokal Expo-modul (`app/modules/game-center`, Swift/GameKit) for innlogging, innsending og visning av lister. Resultater legges i kø og sendes når spilleren er logget inn i Game Center (bare Pro-brukere blir spurt). 31 lister: per nivå raskest og flest løste for totalt, uke og 4 uker, pluss dagens brett. Periodene starter mandag 23.11.2026 kl. 00:00 norsk tid. «Månedslisten» er 4 uker (Apple tillater maks 30 dager). Oppsett i App Store Connect: `store/game-center.md`. Testet i nettleser (kø og meldinger). De 31 listene er opprettet i App Store Connect 19.11 med skriptet `npm run create-leaderboards` (navn på engelsk og norsk, maks 30 tegn). Apple krever varighet med tidsdel (`PT168H` osv.). **Gjenstår:** nytt bygg og test på iPhone.
 4. AdMob med samtykke og sporingsspørsmål – kode ferdig 19.11: `react-native-google-mobile-ads` (17.4.0). Ved oppstart viser Googles samtykkeverktøy (UMP) GDPR-meldingen og IDFA-forklaringen fra AdMob og deretter Apples sporingsspørsmål. Banner (320×50) nederst på hjem, statistikk og innstillinger, ikke under spill. Fullskjermsannonse etter hvert 2. fullførte spill, når spilleren forlater resultatet. Knappen «Personvern for annonser» i innstillinger (der Google krever det). Ingen annonser eller samtykkespørsmål for Pro. Under utvikling brukes Googles test-ID-er. Android-ID i `app.json` er Googles test-ID til Android får egen AdMob-app. Testet i nettleser med plassholder. **Gjenstår:** nytt bygg og test på iPhone.
 5. Ny personvernerklæring, butikktekster og App Privacy.
@@ -296,13 +298,32 @@ Det gir 5 nivåer × 2 lister × 3 perioder = 30 lister, pluss én daglig liste 
 
 **Ferdig når:** en spiller kan logge inn på ny telefon og finne igjen statistikken sin.
 
-### Fase 4 – Online duell
-- Matchmaking-kø basert på rating.
-- Sanntidskamp på samme brett, med servervalidering og serverklokke.
-- Ratingoppdatering etter kamp, kamphistorikk.
-- Håndtering av frakobling og avbrutte kamper.
+### Fase 4 – Online duell (PVP)
 
-**Ferdig når:** to spillere med lik rating blir satt sammen, spiller en kamp og får oppdatert rating.
+Besluttet 19.11. Lages **etter** at versjon 1 er lansert, som en oppdatering.
+
+| Tema | Beslutning |
+|---|---|
+| Hvem | Bare Pro |
+| Teknologi | Apple Game Center: matchmaking, venneinvitasjoner og sanntidsforbindelse mellom telefonene. Ingen egen server i første omgang. Bare iPhone/iPad |
+| Kampform | Begge får **samme brett**. Nedtelling **5 → 0** på begge telefonene samtidig, deretter starter klokken. Først ferdig med riktig brett vinner |
+| Hjelpemidler | Som «uten hjelpemidler»: ingen auto-sjekk og ingen tips, notater og markering er tillatt |
+| Feil levering | **30 s straff** og spill videre. Feilene vises ikke. Spilleren kan levere på nytt (straffen justeres etter testing) |
+| Nivå | Spilleren velger nivå og matches mot noen på samme nivå med lignende rangering |
+| Ingen motstander | «Søker etter motstander…» med avbryt-knapp. Søket utvides gradvis til større forskjell i rangering. I tillegg kan man **invitere en Game Center-venn** direkte |
+| Frakobling | 30 sekunder til å koble til igjen, ellers tap. Å forlate kampen med vilje gir tap med en gang |
+| Rangering | **Elo per nivå**, starter på 1000. Seier mot en sterkere spiller gir flere poeng |
+| Rangeringstavle | Én Game Center-liste per nivå med rangeringen (`wos.pvp.l1.rating` … `l5`). Typen må være «Most Recent Score», fordi rangeringen også kan gå ned |
+
+**Forslag til teknisk løsning (ikke besluttet):**
+- Matchmaking med `GKMatchmaker`. Game Center matcher ikke på Elo direkte, så nivå og et rangeringsspenn legges i «player group» (f.eks. nivå 3, 950–1049). Etter en stund byttes det til bredere spenn.
+- Den ene telefonen velger brettet fra brettbanken og sender ID-en. Nedtellingen startes med et felles tidspunkt, så begge starter likt.
+- Underveis sendes bare fremdrift (antall fylte ruter), aldri tallene. Ved levering sendes brettet til motstanderen, som sjekker det mot fasiten.
+- Ny rangering regnes ut på begge telefoner etter samme formel. Den sendes til Game Center-listen.
+
+**Risiko:** uten egen server er det telefonene som avgjør resultatet. En jukser kan i teorien rapportere falsk seier eller rangering. Blir det et problem, flyttes kampene til en egen server (Supabase) slik planen opprinnelig foreslo.
+
+**Ferdig når:** to Pro-spillere på samme nivå blir satt sammen (eller en venn invitert), ser nedtellingen samtidig, spiller samme brett, og vinneren får høyere rangering på tavlen.
 
 ### Fase 5 – Utvidelser
 Vennekamper, turneringer, sesonger, temaer, eventuell inntektsmodell.
@@ -333,10 +354,10 @@ Vennekamper, turneringer, sesonger, temaer, eventuell inntektsmodell.
 8. ~~Forretningsmodell for første versjon~~ – avklart 17.11: gratis, uten annonser og kjøp.
 
 **Før fase 4**
-9. Skal tips og auto-sjekk være tilgjengelig i online-kamper?
-10. Hva skjer hvis det ikke finnes en motstander – vente, eller møte en datastyrt motstander?
-11. Regel ved frakobling.
-12. Skal det være én rating, eller én per nivå?
+9. ~~Tips og auto-sjekk i online-kamper~~ – avklart 19.11: som «uten hjelpemidler».
+10. ~~Ingen motstander~~ – avklart 19.11: vente med avbryt, utvide søket, og mulighet til å invitere en venn.
+11. ~~Frakobling~~ – avklart 19.11: 30 sekunder, så tap.
+12. ~~Rangering~~ – avklart 19.11: Elo per nivå.
 
 ## 8. Risikoer
 

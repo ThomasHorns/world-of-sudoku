@@ -1,0 +1,11 @@
+DU5MM7WGHR
+
+ffccf575-d94c-4a54-8332-62014486d08f
+
+npm run create-leaderboards -- --key-id DU5MM7WGHR --issuer-id ffccf575-d94c-4a54-8332-62014486d08f --key-file "C:\Users\thoma\Documents\AppleKeys\AuthKey_KEY_ID.p8" --only wos.l1.fastest.all
+
+npm run create-leaderboards -- --key-id DU5MM7WGHR --issuer-id ffccf575-d94c-4a54-8332-62014486d08f --key-file "C:\Users\thoma\Documents\AppleKeys\AuthKey_DU5MM7WGHR.p8" --only wos.l1.fastest.all
+
+Testkonto
+Jordrotte2012@gmail.com
+Apple1975!

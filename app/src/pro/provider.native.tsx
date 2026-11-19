@@ -62,11 +62,18 @@ export function ProProvider({ children }: { children: React.ReactNode }) {
       return;
     }
     setBusy(true);
-    iap
-      .requestPurchase({
-        request: { apple: { sku: PRO_PRODUCT_ID }, google: { skus: [PRO_PRODUCT_ID] } },
-        type: 'in-app',
-      })
+    // Hent produktet på nytt hvis det ikke ble funnet ved oppstart (f.eks. like etter
+    // at det ble opprettet i App Store Connect), før kjøpet startes.
+    const ensureProduct = iap.products.some((p) => p.id === PRO_PRODUCT_ID)
+      ? Promise.resolve()
+      : iap.fetchProducts({ skus: [PRO_PRODUCT_ID], type: 'in-app' }).catch(() => {});
+    ensureProduct
+      .then(() =>
+        iap.requestPurchase({
+          request: { apple: { sku: PRO_PRODUCT_ID }, google: { skus: [PRO_PRODUCT_ID] } },
+          type: 'in-app',
+        }),
+      )
       .catch((error: unknown) => {
         setBusy(false);
         if (!isUserCancelledError(error)) setMessage('purchaseFailed');

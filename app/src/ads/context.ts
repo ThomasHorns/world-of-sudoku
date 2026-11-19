@@ -29,6 +29,9 @@ export interface AdsContextValue {
   noteGameFinished: () => void;
   /** Viser mellomannonsen hvis det er dens tur. Kalles når spilleren forlater resultatet. */
   showInterstitialIfDue: () => void;
+  /** Bare i utviklerversjonen: skjuler alle annonser, så det kan tas rene skjermbilder til App Store. */
+  screenshotMode: boolean;
+  setScreenshotMode: (on: boolean) => void;
 }
 
 export const AdsContext = createContext<AdsContextValue | null>(null);

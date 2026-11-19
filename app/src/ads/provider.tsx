@@ -2,7 +2,7 @@
  * Annonser på web: AdMob finnes ikke. I utviklingsmodus vises en grå plassholder der
  * banneret skal stå, og «mellomannonsen» logges i konsollen, så oppsettet kan prøves i nettleseren.
  */
-import React, { useCallback, useMemo, useRef } from 'react';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { Text, View } from 'react-native';
 import { usePro } from '../pro/context';
 import { AdsContext, AdsContextValue, nextAdCount, useAds } from './context';
@@ -25,15 +25,19 @@ export function AdsProvider({ children }: { children: React.ReactNode }) {
     if (__DEV__) console.log('[annonser] Mellomannonse ville blitt vist her');
   }, [isPro]);
 
+  const [screenshotMode, setScreenshotMode] = useState(false);
+
   const value = useMemo<AdsContextValue>(
     () => ({
-      ready: __DEV__ && !isPro,
+      ready: __DEV__ && !isPro && !screenshotMode,
       privacyOptionsRequired: false,
       openPrivacyOptions: () => {},
       noteGameFinished,
       showInterstitialIfDue,
+      screenshotMode,
+      setScreenshotMode,
     }),
-    [isPro, noteGameFinished, showInterstitialIfDue],
+    [isPro, noteGameFinished, showInterstitialIfDue, screenshotMode],
   );
 
   return <AdsContext.Provider value={value}>{children}</AdsContext.Provider>;
