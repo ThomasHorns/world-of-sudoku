@@ -13,15 +13,25 @@ import {
   dateKey,
   emptyStats,
   GameState,
+  LeaderboardCounters,
+  leaderboardSubmissions,
   pickPuzzle,
   recordGame,
   RecordResult,
+  ScoreSubmission,
+  stillValid,
   Slot,
   slotForLevel,
   Stats,
 } from '../../packages/game/src';
 import { PUZZLE_BANK } from '../../packages/puzzle-bank';
+import * as GameCenter from '../modules/game-center';
 import { LanguageSetting, makeTranslate, resolveLanguage, Translate } from './i18n';
+
+export type CompleteResult = RecordResult & {
+  /** Resultatet er lagt i kø for topplisten (Pro + uten hjelpemidler + løst). */
+  leaderboard: boolean;
+};
 
 const STORAGE_KEY = 'wos:data:v1';
 
@@ -33,6 +43,8 @@ export interface AppData {
   played: Record<string, string[]>;
   /** Ferdige dagens brett: dato -> tid og om det ble løst. */
   dailyDone: Record<string, { ms: number; won?: boolean }>;
+  /** Topplister: telling av løste brett og resultater som venter på å bli sendt til Game Center. */
+  leaderboard?: { counters: LeaderboardCounters; pending: ScoreSubmission[] };
   settings: {
     language: LanguageSetting;
     lastAutoCheck: boolean;
@@ -91,7 +103,9 @@ interface AppContextValue {
   saveGame: (game: GameState) => void;
   discardGame: (slot: Slot) => void;
   startGame: (opts: StartOptions) => GameState;
-  completeGame: (game: GameState) => RecordResult;
+  completeGame: (game: GameState) => CompleteResult;
+  /** Sender ventende resultater til Game Center (hvis innlogget). */
+  flushLeaderboard: () => Promise<void>;
   setLanguage: (language: LanguageSetting) => void;
   setPro: (isPro: boolean) => void;
 }
@@ -183,8 +197,11 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   );
 
   const completeGame = useCallback(
-    (game: GameState): RecordResult => {
+    (game: GameState): CompleteResult => {
       const result = recordGame(dataRef.current!.stats, game);
+      const isPro = !!dataRef.current!.settings.isPro;
+      const board = dataRef.current!.leaderboard ?? { counters: {}, pending: [] };
+      const lb = isPro ? leaderboardSubmissions(game, board.counters) : { counters: board.counters, submissions: [] };
       update((d) => {
         const games = { ...d.games };
         delete games[game.slot];
@@ -192,12 +209,44 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         const dailyDone = game.dailyDate
           ? { ...d.dailyDone, [game.dailyDate]: { ms: result.timeMs, won: game.status === 'won' } }
           : d.dailyDone;
-        return { ...d, games, stats: result.stats, dailyDone };
+        const prevBoard = d.leaderboard ?? { counters: {}, pending: [] };
+        const leaderboard =
+          lb.submissions.length > 0
+            ? { counters: lb.counters, pending: [...prevBoard.pending, ...lb.submissions] }
+            : d.leaderboard;
+        return { ...d, games, stats: result.stats, dailyDone, leaderboard };
       });
-      return result;
+      return { ...result, leaderboard: lb.submissions.length > 0 };
     },
     [update],
   );
+
+  const flushing = useRef(false);
+  const flushLeaderboard = useCallback(async () => {
+    if (flushing.current || !GameCenter.gameCenterAvailable || !GameCenter.isAuthenticated()) return;
+    const pending = dataRef.current?.leaderboard?.pending ?? [];
+    if (pending.length === 0) return;
+    flushing.current = true;
+    const sent = new Set<ScoreSubmission>();
+    try {
+      for (const s of stillValid(pending, Date.now())) {
+        try {
+          await GameCenter.submitScore(s.score, [s.leaderboardId]);
+          sent.add(s);
+        } catch {
+          // Prøves igjen neste gang (f.eks. uten nett).
+        }
+      }
+    } finally {
+      flushing.current = false;
+      update((d) => {
+        if (!d.leaderboard) return d;
+        const now = Date.now();
+        const rest = stillValid(d.leaderboard.pending, now).filter((s) => !sent.has(s));
+        return { ...d, leaderboard: { ...d.leaderboard, pending: rest } };
+      });
+    }
+  }, [update]);
 
   const setLanguage = useCallback(
     (language: LanguageSetting) =>
@@ -226,8 +275,9 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       completeGame,
       setLanguage,
       setPro,
+      flushLeaderboard,
     };
-  }, [data, today, saveGame, discardGame, startGame, completeGame, setLanguage, setPro]);
+  }, [data, today, saveGame, discardGame, startGame, completeGame, setLanguage, setPro, flushLeaderboard]);
 
   // Vent til lagrede data er lest før noe vises.
   if (!value) return null;

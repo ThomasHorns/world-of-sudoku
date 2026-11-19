@@ -8,7 +8,8 @@
     "typecheck": "tsc -p tsconfig.json",
     "generate-bank": "tsx tools/generate-bank.ts",
     "verify-bank": "tsx tools/verify-bank.ts",
-    "generate-icons": "tsx tools/generate-icons.ts"
+    "generate-icons": "tsx tools/generate-icons.ts",
+    "create-leaderboards": "tsx tools/create-leaderboards.ts"
   },
   "devDependencies": {
     "@resvg/resvg-js": "^2.6.2",

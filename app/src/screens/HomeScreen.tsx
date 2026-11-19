@@ -9,7 +9,8 @@ import { DEFAULT_PENALTIES, Slot, slotForLevel } from '../../../packages/game/sr
 import { Logo } from '../components/Logo';
 import { Button, Card } from '../components/ui';
 import { formatTime } from '../format';
-import { weekdayName } from '../i18n';
+import * as GameCenter from '../../modules/game-center';
+import { TextKey, weekdayName } from '../i18n';
 import { usePro } from '../pro/context';
 import { useApp } from '../store';
 import { Colors, useColors } from '../theme';
@@ -33,6 +34,18 @@ export function HomeScreen({ onOpenGame, onStats, onSettings }: Props) {
   const [autoCheck, setAutoCheck] = useState(data.settings.lastAutoCheck);
   const { isPro } = usePro();
   const [noAids, setNoAids] = useState(!!data.settings.lastNoAids);
+
+  const [boardNote, setBoardNote] = useState<TextKey | null>(null);
+
+  /** Topplister: krever Pro, finnes bare på iPhone/iPad, og krever Game Center-innlogging. */
+  const openLeaderboards = async () => {
+    setBoardNote(null);
+    if (!isPro) return setBoardNote('leaderboardsNeedPro');
+    if (!GameCenter.gameCenterAvailable) return setBoardNote('leaderboardsIosOnly');
+    const ok = GameCenter.isAuthenticated() || (await GameCenter.authenticate());
+    if (!ok) return setBoardNote('leaderboardsSignInFailed');
+    await GameCenter.showLeaderboards().catch(() => {});
+  };
 
   const openStart = (slot: Slot) => {
     setAutoCheck(data.settings.lastAutoCheck);
@@ -115,7 +128,9 @@ export function HomeScreen({ onOpenGame, onStats, onSettings }: Props) {
         })}
       </View>
 
-      <View style={{ flexDirection: 'row', gap: 8, marginTop: 8 }}>
+      <Button label={t('leaderboards')} colors={colors} onPress={openLeaderboards} style={{ marginTop: 8 }} />
+      {boardNote && <Text style={{ color: colors.muted, fontSize: 13 }}>{t(boardNote)}</Text>}
+      <View style={{ flexDirection: 'row', gap: 8 }}>
         <Button label={t('stats')} colors={colors} onPress={onStats} style={{ flex: 1 }} />
         <Button label={t('settings')} colors={colors} onPress={onSettings} style={{ flex: 1 }} />
       </View>

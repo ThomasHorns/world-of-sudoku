@@ -10,7 +10,10 @@ import { GameScreen } from './src/screens/GameScreen';
 import { HomeScreen } from './src/screens/HomeScreen';
 import { SettingsScreen } from './src/screens/SettingsScreen';
 import { StatsScreen } from './src/screens/StatsScreen';
+import * as GameCenter from './modules/game-center';
+import { usePro } from './src/pro/context';
 import { ProProvider } from './src/pro/provider';
+import { AdBanner, AdsProvider } from './src/ads/provider';
 import { AppProvider, useApp } from './src/store';
 import { useColors } from './src/theme';
 
@@ -19,6 +22,30 @@ type Route =
   | { name: 'game'; slot: Slot; key: number }
   | { name: 'stats' }
   | { name: 'settings' };
+
+/**
+ * Game Center i bakgrunnen: logger inn Pro-brukere og sender resultater som venter.
+ * Gratisbrukere blir aldri spurt om Game Center.
+ */
+function GameCenterSync() {
+  const { isPro } = usePro();
+  const { data, flushLeaderboard } = useApp();
+  const pending = data.leaderboard?.pending.length ?? 0;
+  const [authed, setAuthed] = useState(GameCenter.isAuthenticated());
+
+  useEffect(() => {
+    if (isPro && GameCenter.gameCenterAvailable && !authed) {
+      GameCenter.authenticate().then(setAuthed);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isPro]);
+
+  useEffect(() => {
+    if (authed && pending > 0) void flushLeaderboard();
+  }, [authed, pending, flushLeaderboard]);
+
+  return null;
+}
 
 function Screens() {
   const colors = useColors();
@@ -71,6 +98,8 @@ function Screens() {
       )}
       {route.name === 'stats' && <StatsScreen onBack={home} />}
       {route.name === 'settings' && <SettingsScreen onBack={home} />}
+      {/* Banner nederst på alle skjermer unntatt under spill (ikke for Pro). */}
+      {route.name !== 'game' && <AdBanner />}
       <StatusBar style="auto" />
     </View>
   );
@@ -81,7 +110,10 @@ export default function App() {
     <SafeAreaProvider>
       <AppProvider>
         <ProProvider>
-          <Screens />
+          <AdsProvider>
+            <GameCenterSync />
+            <Screens />
+          </AdsProvider>
         </ProProvider>
       </AppProvider>
     </SafeAreaProvider>

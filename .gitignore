@@ -7,3 +7,6 @@ web-build/
 .env
 .env.*
 !.env.example
+
+# Apple API-nøkler skal aldri i git
+*.p8

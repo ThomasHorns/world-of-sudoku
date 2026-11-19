@@ -80,6 +80,16 @@ const nb = {
   noAidsOn: 'Auto-sjekk og tips er av. Notater og markering er tillatt. Løste brett registreres på topplisten.',
   noAidsNeedsPro: 'Uten hjelpemidler og toppliste krever Pro (se innstillinger).',
   hintOff: 'Tips av',
+  leaderboards: 'Topplister',
+  leaderboardsNeedPro: 'Topplister krever Pro. Du finner Pro i innstillinger.',
+  leaderboardsIosOnly: 'Topplister finnes bare på iPhone og iPad.',
+  leaderboardsSignInFailed: 'Logg inn i Game Center for å se topplistene (Innstillinger → Game Center).',
+  sentToLeaderboard: 'Resultatet registreres på topplisten.',
+  gameCenter: 'Game Center',
+  gameCenterSignedIn: 'Logget inn som {name}',
+  gameCenterSignIn: 'Logg inn i Game Center',
+  adPrivacy: 'Personvern for annonser',
+  adPrivacyBody: 'Endre samtykket ditt til personlig tilpassede annonser.',
 } as const;
 
 export type TextKey = keyof typeof nb;
@@ -147,6 +157,16 @@ const en: Record<TextKey, string> = {
   noAidsOn: 'Auto-check and hints are off. Notes and highlighting are allowed. Solved puzzles are recorded on the leaderboard.',
   noAidsNeedsPro: 'No aids and leaderboards require Pro (see settings).',
   hintOff: 'Hints off',
+  leaderboards: 'Leaderboards',
+  leaderboardsNeedPro: 'Leaderboards require Pro. You can find Pro in settings.',
+  leaderboardsIosOnly: 'Leaderboards are only available on iPhone and iPad.',
+  leaderboardsSignInFailed: 'Sign in to Game Center to see the leaderboards (Settings → Game Center).',
+  sentToLeaderboard: 'Your result is recorded on the leaderboard.',
+  gameCenter: 'Game Center',
+  gameCenterSignedIn: 'Signed in as {name}',
+  gameCenterSignIn: 'Sign in to Game Center',
+  adPrivacy: 'Ad privacy settings',
+  adPrivacyBody: 'Change your consent to personalised ads.',
 };
 
 const TEXTS: Record<Lang, Record<TextKey, string>> = { nb, en };

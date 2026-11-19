@@ -36,7 +36,8 @@ import { Board } from '../components/Board';
 import { NumberPad } from '../components/NumberPad';
 import { Button, Card, Header } from '../components/ui';
 import { formatTime } from '../format';
-import { useApp } from '../store';
+import { useAds } from '../ads/context';
+import { CompleteResult, useApp } from '../store';
 import { useColors } from '../theme';
 
 interface Props {
@@ -45,7 +46,17 @@ interface Props {
   onPlayAgain: (slot: Slot, autoCheck: boolean, noAids: boolean) => void;
 }
 
-export function GameScreen({ slot, onHome, onPlayAgain }: Props) {
+export function GameScreen({ slot, onHome: goHome, onPlayAgain: playAgain }: Props) {
+  const ads = useAds();
+  // Mellomannonsen vises når spilleren forlater et ferdig spill (hvis det er dens tur).
+  const onHome = () => {
+    if (gameRef.current.status !== 'playing') ads.showInterstitialIfDue();
+    goHome();
+  };
+  const onPlayAgain: Props['onPlayAgain'] = (...args) => {
+    ads.showInterstitialIfDue();
+    playAgain(...args);
+  };
   const { data, t, lang, saveGame, completeGame } = useApp();
   const colors = useColors();
   const { width, height } = useWindowDimensions();
@@ -61,7 +72,7 @@ export function GameScreen({ slot, onHome, onPlayAgain }: Props) {
    */
   const [focusDigit, setFocusDigit] = useState<number | null>(null);
   const [hint, setHint] = useState<Hint | null>(null);
-  const [result, setResult] = useState<RecordResult | null>(null);
+  const [result, setResult] = useState<CompleteResult | null>(null);
   const [now, setNow] = useState(Date.now());
   const [flash, setFlash] = useState<string | null>(null);
 
@@ -83,11 +94,12 @@ export function GameScreen({ slot, onHome, onPlayAgain }: Props) {
         saveGame(next);
       } else if (prev.status === 'playing') {
         setResult(completeGame(next));
+        ads.noteGameFinished();
         setSelected(null);
         setHint(null);
       }
     },
-    [saveGame, completeGame],
+    [saveGame, completeGame, ads],
   );
 
   // Klokke: oppdater visningen, og lagre et øyeblikksbilde av tiden jevnlig.
@@ -347,7 +359,7 @@ function ResultCard({
   onPlayAgain,
 }: {
   game: GameState;
-  result: RecordResult | null;
+  result: CompleteResult | null;
   onHome: () => void;
   onPlayAgain?: () => void;
 }) {
@@ -378,6 +390,7 @@ function ResultCard({
       ) : (
         <Text style={{ color: colors.text }}>{t('lostBody')}</Text>
       )}
+      {result?.leaderboard && <Text style={{ color: colors.accent }}>{t('sentToLeaderboard')}</Text>}
       <View style={{ gap: 4 }}>
         {rows.map(([k, v]) => (
           <View key={k} style={{ flexDirection: 'row', justifyContent: 'space-between' }}>

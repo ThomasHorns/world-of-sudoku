@@ -13,6 +13,9 @@
       "requireFullScreen": true,
       "config": {
         "usesNonExemptEncryption": false
+      },
+      "entitlements": {
+        "com.apple.developer.game-center": true
       }
     },
     "android": {
@@ -42,7 +45,18 @@
           }
         }
       ],
-      "expo-iap"
+      "expo-iap",
+      [
+        "react-native-google-mobile-ads",
+        {
+          "iosAppId": "ca-app-pub-3041624447235807~3132374765",
+          "androidAppId": "ca-app-pub-3940256099942544~3347511713",
+          "userTrackingUsageDescription": "Your data is used to show you more relevant ads. The ads keep World of Sudoku free.",
+          "skAdNetworkItems": [
+            "cstr6suwn9.skadnetwork"
+          ]
+        }
+      ]
     ],
     "extra": {
       "eas": {

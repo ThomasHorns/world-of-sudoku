@@ -1,0 +1,7 @@
+{
+  "name": "game-center",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Liten Expo-modul for Apple Game Center i World of Sudoku: innlogging, innsending av resultater og visning av topplister.",
+  "main": "index.ts"
+}
