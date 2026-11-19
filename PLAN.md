@@ -219,7 +219,7 @@ Lokal lagring i fase 1: pågående spill, statistikk og innstillinger ligger på
 - `store/app-store.md`: tekster (nb/en), søkeord, personvern («Data Not Collected»), aldersgrense, skjermbilder og steg fra konto til App Store.
 
 **Gjenstår for iPhone (krever deg):**
-1. Melde deg inn i Apple Developer Program som privatperson (99 USD per år).
+1. ~~Melde deg inn i Apple Developer Program~~ – godkjent 19.11. Første iOS-bygg (production, byggnummer 2) er ferdig. Sertifikater og profiler er laget av EAS og lagres hos Expo.
 2. Velge kontakt-e-post (åpent spørsmål 17).
 3. Publisere personvernerklæring og en support-side på Google Sites.
 4. Opprette appen i App Store Connect (her vises det om navnet er ledig).
