@@ -47,8 +47,10 @@ interface Props {
 export function GameScreen({ slot, onHome, onPlayAgain }: Props) {
   const { data, t, lang, saveGame, completeGame } = useApp();
   const colors = useColors();
-  const { width } = useWindowDimensions();
-  const contentWidth = Math.min(width - 24, 460);
+  const { width, height } = useWindowDimensions();
+  // Brettet fyller bredden på telefon. På iPad og andre store skjermer får det vokse,
+  // men ikke mer enn at tastatur og knapper (ca. 360 punkter) får plass under.
+  const contentWidth = Math.max(Math.min(width - 24, height - 360, 680), Math.min(width - 24, 460));
 
   const [game, setGame] = useState<GameState>(() => resume(data.games[slot]!, Date.now()));
   const [selected, setSelected] = useState<number | null>(null);

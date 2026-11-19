@@ -14,9 +14,9 @@ Fase 0 er ferdig (17.11): motor, tester, brettbank og Expo-app er på plass (se 
 
 Avklart 17.11: brettbank, nivånavn, teknikkinndeling, tilleggsfunksjoner, auto-sjekk (inkl. levering, avslutning og tips ved feil), lagring, appnavn, utseende (stil A, notatrad, klassisk rutenett), blå aksentfarge og logo A.
 
-Fase 1 (enspiller) er ferdig og testet på iPhone med Expo Go. Fase 2 (lansering på Android) er påbegynt 17.11: konfigurasjon, ikoner, personvernerklæring og butikktekster er klare.
+Fase 1 (enspiller) er ferdig og testet på iPhone med Expo Go. Fase 2 (lansering) pågår. 19.11 ble planen endret: iPhone og iPad lanseres først, og Android er satt på pause. Konfigurasjon, ikoner, personvernerklæring og butikktekster for begge plattformer er klare.
 
-Neste steg: listen «Gjenstår» under fase 2 i kapittel 6. Kontakt-e-post (spørsmål 17) er det eneste åpne valget før lansering.
+Neste steg: listen «Gjenstår for iPhone» under fase 2 i kapittel 6. Første punkt er Apple Developer-kontoen.
 
 ---
 
@@ -38,7 +38,7 @@ En sudoku-app for mobil der alle spill tas tid på.
 | Teknologi | Expo / React Native (TypeScript) + Supabase som backend |
 | Språk | Norsk og engelsk fra start |
 | Forretningsmodell | Første versjon: gratis, uten annonser og kjøp. Senere inntekt er ikke bestemt |
-| Utgiver | Privatperson. Android lanseres først, iPhone senere |
+| Utgiver | Privatperson. iPhone og iPad lanseres først (endret 19.11), Android senere |
 | App-ID | `mchorn.worldofsudoku` (Android og iOS) |
 | Konto | Ingen innlogging i enspiller-fasen. Alt lagres lokalt på telefonen |
 
@@ -202,7 +202,7 @@ Lokal lagring i fase 1: pågående spill, statistikk og innstillinger ligger på
 
 **Ferdig når:** appen ligger i begge butikkene.
 
-**Avklart 17.11:** Android lanseres først (iPhone senere med samme kode). Utgiver er deg som privatperson. App-ID: `mchorn.worldofsudoku`. Første versjon er gratis, uten annonser og kjøp. Google-kontoen er ny, så en lukket test med minst 12 testere i 14 dager trengs før publisering. Android-telefon til testing lånes.
+**Avklart 17.11 (plattformvalget er endret 19.11, se under):** Android lanseres først (iPhone senere med samme kode). Utgiver er deg som privatperson. App-ID: `mchorn.worldofsudoku`. Første versjon er gratis, uten annonser og kjøp. Google-kontoen er ny, så en lukket test med minst 12 testere i 14 dager trengs før publisering. Android-telefon til testing lånes.
 
 **Status 17.11 – forberedt:**
 - `app/app.json`: app-ID for Android og iOS, oppstartsbilde (lys og mørk), ikonfarge.
@@ -211,14 +211,29 @@ Lokal lagring i fase 1: pågående spill, statistikk og innstillinger ligger på
 - `store/personvern.md`: personvernerklæring (nb/en).
 - `store/google-play.md`: butikktekster (nb/en), datasikkerhet, innholdsvurdering, plan for lukket test og byggesteg.
 
-**Gjenstår (krever deg):**
-1. Velge kontakt-e-post (åpent spørsmål 17).
-2. Publisere personvernerklæringen på Google Sites (se `store/google-play.md`).
-3. ~~Koble prosjektet til Expo-kontoen og bygge en testversjon~~ – gjort 17.11: prosjektet eies av `mchorn-team` på expo.dev, og første test-APK (versionCode 1) er bygget med profilen `preview`. Signeringsnøkkelen ble laget og lagres av Expo.
-4. Teste på lånt Android-telefon. Justere straff og nivåer ved behov.
-5. Endelig logo, funksjonsgrafikk og skjermbilder.
-6. Opprette appen i Play Console, fylle ut skjemaene og starte lukket test med 12 testere i 14 dager.
-7. Søke om produksjonstilgang og publisere.
+**Endret 19.11: iPhone lanseres først, Android er satt på pause.** Appen lanseres for både iPhone og iPad. Testing skjer i Expo Go nå og i TestFlight når Apple-kontoen er klar. Android-oppsettet (test-APK, `store/google-play.md`) ligger klart til senere.
+
+**Gjort for iPhone/iPad 19.11:**
+- `app.json`: `requireFullScreen` (appen er bare laget for stående retning) og `usesNonExemptEncryption: false`.
+- Brettet blir større på iPad og andre store skjermer (opptil 680 punkter), testet i nettleser i iPad-størrelse.
+- `store/app-store.md`: tekster (nb/en), søkeord, personvern («Data Not Collected»), aldersgrense, skjermbilder og steg fra konto til App Store.
+
+**Gjenstår for iPhone (krever deg):**
+1. Melde deg inn i Apple Developer Program som privatperson (99 USD per år).
+2. Velge kontakt-e-post (åpent spørsmål 17).
+3. Publisere personvernerklæring og en support-side på Google Sites.
+4. Opprette appen i App Store Connect (her vises det om navnet er ledig).
+5. Bygge for iOS med EAS (du logger inn med Apple-ID-en i terminalen) og laste opp til TestFlight.
+6. Teste med TestFlight på iPhone og iPad. Justere straff og nivåer ved behov.
+7. Endelig logo og skjermbilder for iPhone og iPad.
+8. Fylle ut butikksiden og sende til gjennomgang hos Apple.
+
+**Android (på pause) – gjenstår:**
+1. ~~Koble prosjektet til Expo-kontoen og bygge en testversjon~~ – gjort 17.11: prosjektet eies av `mchorn-team` på expo.dev, og første test-APK (versionCode 1) er bygget med profilen `preview`. Signeringsnøkkelen ble laget og lagres av Expo.
+2. Teste på lånt Android-telefon (Galaxy A06 eller S22).
+3. Funksjonsgrafikk og skjermbilder for Google Play.
+4. Opprette appen i Play Console, fylle ut skjemaene og starte lukket test med 12 testere i 14 dager.
+5. Søke om produksjonstilgang og publisere.
 
 ### Fase 3 – Kontoer og backend
 - Innlogging via Supabase.
