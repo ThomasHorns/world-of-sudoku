@@ -72,7 +72,7 @@ Ikke oppgi kjøp (håndteres av Apple), Game Center (Apples tjeneste) eller spil
 > Følg beste tid og snittid per nivå, med egne rekorder med og uten auto-sjekk.
 >
 > WORLD OF SUDOKU PRO
-> Et engangskjøp fjerner alle annonser og gir deg modusen «uten hjelpemidler» – ingen auto-sjekk og ingen tips. Løste brett uten hjelpemidler kommer på topplistene i Game Center: raskest tid og flest løste brett per nivå, denne uken, denne måneden og totalt, pluss en egen liste for dagens brett.
+> Et engangskjøp fjerner alle annonser og gir deg modusen «uten hjelpemidler» – ingen auto-sjekk og ingen tips. Løste brett uten hjelpemidler kommer på topplistene i Game Center: raskest tid og flest løste brett per nivå – for uken, for fire uker og totalt – pluss en egen liste for dagens brett.
 >
 > I TILLEGG
 > • Pause skjuler brettet, og spillet lagres automatisk.
@@ -116,7 +116,7 @@ Ikke oppgi kjøp (håndteres av Apple), Game Center (Apples tjeneste) eller spil
 > Track best and average times per level, with separate records with and without auto-check.
 >
 > WORLD OF SUDOKU PRO
-> A one-time purchase removes all ads and unlocks the no-aids mode – no auto-check and no hints. Puzzles solved without aids go on the Game Center leaderboards: fastest time and most solved per level, this week, this month and all time, plus a daily leaderboard.
+> A one-time purchase removes all ads and unlocks the no-aids mode – no auto-check and no hints. Puzzles solved without aids go on the Game Center leaderboards: fastest time and most solved per level – weekly, every four weeks and all time – plus a daily leaderboard.
 >
 > ALSO
 > • Pause hides the board, and your game is saved automatically.
