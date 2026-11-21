@@ -35,6 +35,14 @@ export type CompleteResult = RecordResult & {
 
 const STORAGE_KEY = 'wos:data:v1';
 
+export interface GameCenterLogEntry {
+  at: number;
+  leaderboardId?: string;
+  score?: number;
+  /** Feilmelding fra Game Center, eller grunnen til at ingenting ble sendt. */
+  message?: string;
+}
+
 export interface AppData {
   version: 1;
   games: Partial<Record<Slot, GameState>>;
@@ -45,6 +53,8 @@ export interface AppData {
   dailyDone: Record<string, { ms: number; won?: boolean }>;
   /** Topplister: telling av løste brett og resultater som venter på å bli sendt til Game Center. */
   leaderboard?: { counters: LeaderboardCounters; pending: ScoreSubmission[] };
+  /** Siste svar fra Game Center ved innsending – vises i Innstillinger for feilsøking. */
+  gameCenterLog?: { lastSent?: GameCenterLogEntry; lastError?: GameCenterLogEntry };
   settings: {
     language: LanguageSetting;
     lastAutoCheck: boolean;
@@ -229,19 +239,28 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         `[toppliste] kø=${pending.length}, Game Center tilgjengelig=${GameCenter.gameCenterAvailable}, innlogget=${GameCenter.isAuthenticated()}`,
       );
     }
-    if (flushing.current || !GameCenter.gameCenterAvailable || !GameCenter.isAuthenticated()) return;
-    if (pending.length === 0) return;
+    if (flushing.current || pending.length === 0) return;
+    if (!GameCenter.gameCenterAvailable || !GameCenter.isAuthenticated()) {
+      const message = GameCenter.gameCenterAvailable ? 'Not signed in to Game Center' : 'Game Center not available';
+      update((d) => ({ ...d, gameCenterLog: { ...d.gameCenterLog, lastError: { at: Date.now(), message } } }));
+      return;
+    }
     flushing.current = true;
     const sent = new Set<ScoreSubmission>();
+    let lastSent: GameCenterLogEntry | undefined;
+    let lastError: GameCenterLogEntry | undefined;
     try {
       for (const s of stillValid(pending, Date.now())) {
         try {
           await GameCenter.submitScore(s.score, [s.leaderboardId]);
           sent.add(s);
+          lastSent = { at: Date.now(), leaderboardId: s.leaderboardId, score: s.score };
           if (__DEV__) console.log(`[toppliste] sendt ${s.leaderboardId} = ${s.score}`);
         } catch (e) {
           // Prøves igjen neste gang (f.eks. uten nett).
-          if (__DEV__) console.warn(`[toppliste] feil ${s.leaderboardId}: ${String((e as Error)?.message ?? e)}`);
+          const message = String((e as Error)?.message ?? e);
+          lastError = { at: Date.now(), leaderboardId: s.leaderboardId, score: s.score, message };
+          if (__DEV__) console.warn(`[toppliste] feil ${s.leaderboardId}: ${message}`);
         }
       }
     } finally {
@@ -250,7 +269,11 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         if (!d.leaderboard) return d;
         const now = Date.now();
         const rest = stillValid(d.leaderboard.pending, now).filter((s) => !sent.has(s));
-        return { ...d, leaderboard: { ...d.leaderboard, pending: rest } };
+        const gameCenterLog = {
+          lastSent: lastSent ?? d.gameCenterLog?.lastSent,
+          lastError: lastError ?? d.gameCenterLog?.lastError,
+        };
+        return { ...d, leaderboard: { ...d.leaderboard, pending: rest }, gameCenterLog };
       });
     }
   }, [update]);
