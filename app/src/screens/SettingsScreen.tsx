@@ -20,6 +20,7 @@ export function SettingsScreen({ onBack }: { onBack: () => void }) {
   const colors = useColors();
   const [gcName, setGcName] = useState<string | null>(GameCenter.displayName());
   const [sending, setSending] = useState(false);
+  const [taps, setTaps] = useState(0);
   const log = data.gameCenterLog;
   const { width } = useWindowDimensions();
   const contentWidth = Math.min(width - 24, 460);
@@ -34,7 +35,14 @@ export function SettingsScreen({ onBack }: { onBack: () => void }) {
     <ScrollView contentContainerStyle={[styles.container, { width: contentWidth }]}>
       <Header title={t('settings')} onBack={onBack} backLabel={t('home')} colors={colors} />
       <Card colors={colors}>
-        <Text style={{ color: colors.text, fontSize: 17, fontWeight: '500' }}>{t('proTitle')}</Text>
+        {/* 5 trykk på overskriften viser status for topplister (skjult feilsøking). */}
+        <Text
+          style={{ color: colors.text, fontSize: 17, fontWeight: '500' }}
+          onPress={() => setTaps((n) => n + 1)}
+          suppressHighlighting
+        >
+          {t('proTitle')}
+        </Text>
         {pro.isPro ? (
           <>
             <Text style={{ color: colors.success }}>{t('proOwned')}</Text>
@@ -77,7 +85,7 @@ export function SettingsScreen({ onBack }: { onBack: () => void }) {
         />
         {pro.message && <Text style={{ color: colors.muted, fontSize: 13 }}>{t(pro.message)}</Text>}
       </Card>
-      {pro.isPro && GameCenter.gameCenterAvailable && (
+      {pro.isPro && GameCenter.gameCenterAvailable && taps >= 5 && (
         <Card colors={colors}>
           <Text style={{ color: colors.text, fontSize: 17, fontWeight: '500' }}>{t('gcStatusTitle')}</Text>
           <Text style={styles.small(colors.muted)}>
