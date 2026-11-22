@@ -10,7 +10,8 @@ Dokumentet skiller mellom tre ting:
 
 ## Status – her fortsetter vi
 
-**Sist oppdatert 21.11.** Versjon 1.0.0 (bygg 6) er **sendt til gjennomgang hos Apple 21.11**, sammen med Pro-kjøpet og alle 31 topplister. Venter på svar (vanligvis 1–3 dager). «Manually release» er valgt – appen kommer ikke ut før du trykker Release.
+**Sist oppdatert 22.11.** Versjon 1.0.0 (bygg 6) ble sendt til Apple 21.11 sammen med Pro-kjøpet og alle 31 topplister. Apple svarte «Guideline 2.1 – Information Needed» (ingen feil i appen): de ville ha skjermopptak og svar på spørsmål om formål, bruk, eksterne tjenester og regioner. **Sendt inn på nytt 22.11** med opptak (Attachment) og ny tekst i Notes – se `store/app-review-notes.md`. Venter på svar. «Manually release» er valgt – appen kommer ikke ut før du trykker Release.
+Merk: i TestFlight brukes den ekte Apple-ID-en til kjøp (i sandkasse), ikke testkontoene – et Pro-kjøp der kan ikke nullstilles med Clear Purchase History.
 
 **Ferdig:** fase 0 og 1 (motor, enspiller), fase 2b i kode og testet på iPhone med utviklerversjonen: Pro-kjøp (sandbox-kjøp virker), «uten hjelpemidler», Game Center (31 lister opprettet, innsending virker – se logg-linjer `[toppliste]` i utviklerserveren), AdMob (samtykke, banner, mellomannonse). iPhone-skjermbilder (6 engelske + 6 norske, 1206×2622) er lastet opp i App Store Connect. Personvernside: https://sites.google.com/view/world-of-sudoku/start
 
