@@ -227,7 +227,7 @@ Lokal lagring i fase 1: pågående spill, statistikk og innstillinger ligger på
 **Gjort for iPhone/iPad 19.11:**
 - `app.json`: `requireFullScreen` (appen er bare laget for stående retning) og `usesNonExemptEncryption: false`.
 - Brettet blir større på iPad og andre store skjermer (opptil 680 punkter), testet i nettleser i iPad-størrelse.
-- `store/app-store.md`: tekster (nb/en), søkeord, personvern («Data Not Collected»), aldersgrense, skjermbilder og steg fra konto til App Store.
+- `store/app-store.md`: tekster (nb/en), søkeord, personvern, aldersgrense, skjermbilder og steg fra konto til App Store. (Personvern var først «Data Not Collected»; etter AdMob (fase 2b) oppgis seks datatyper, fire av dem til sporing – se «App Privacy» i `store/app-store.md`, publisert 19.11.)
 
 **Gjenstår for iPhone (krever deg):**
 1. ~~Melde deg inn i Apple Developer Program~~ – godkjent 19.11. Første iOS-bygg (production, byggnummer 2) er ferdig. Sertifikater og profiler er laget av EAS og lagres hos Expo.
