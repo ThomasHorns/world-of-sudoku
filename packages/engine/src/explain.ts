@@ -48,6 +48,15 @@ export const ERROR_HINT_TEXT: Record<Lang, string> = {
   en: 'There is at least one mistake on the board.',
 };
 
+/** Tekst når notatene i én eller flere ruter mangler det riktige tallet. */
+export function describeNoteError(noteCells: number[], lang: Lang): string {
+  const where = cells(noteCells, lang);
+  if (lang === 'nb') return `Notatene i ${where} mangler det riktige tallet.`;
+  return noteCells.length === 1
+    ? `The notes in ${where} are missing the correct number.`
+    : `The notes in ${where} are missing the correct numbers.`;
+}
+
 const WORDS = {
   nb: { row: 'rad', col: 'kolonne', box: 'boks', and: 'og' },
   en: { row: 'row', col: 'column', box: 'box', and: 'and' },

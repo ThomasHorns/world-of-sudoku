@@ -6,6 +6,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { AppState, Platform, ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import {
   colOf,
+  describeNoteError,
   describeStep,
   ERROR_HINT_TEXT,
   Hint,
@@ -78,6 +79,8 @@ export function GameScreen({ slot, onHome: goHome, onPlayAgain: playAgain }: Pro
 
   const gameRef = useRef(game);
   gameRef.current = game;
+  /** Tips vist for samme stilling (tall + notater), så et nytt trykk gir neste tips. */
+  const hintSeries = useRef<{ key: string; count: number }>({ key: '', count: 0 });
 
   /** Ny tilstand: lagres mens spillet pågår, registreres i statistikken når det er ferdig. */
   const apply = useCallback(
@@ -179,7 +182,12 @@ export function GameScreen({ slot, onHome: goHome, onPlayAgain: playAgain }: Pro
 
   const onHint = () => {
     if (paused || !playing) return;
-    const r = requestHint(gameRef.current, DEFAULT_PENALTIES);
+    const g = gameRef.current;
+    // Samme stilling som ved forrige tips? Da vises neste steg i stedet for det samme.
+    const key = `${g.values.join('')}|${g.notes.join(',')}`;
+    const skip = hintSeries.current.key === key ? hintSeries.current.count : 0;
+    const r = requestHint(g, DEFAULT_PENALTIES, skip);
+    hintSeries.current = { key, count: r.hint.kind === 'step' ? skip + 1 : skip };
     apply(r.state);
     setHint(r.hint.kind === 'none' ? null : r.hint);
   };
@@ -215,7 +223,9 @@ export function GameScreen({ slot, onHome: goHome, onPlayAgain: playAgain }: Pro
   const hintCells =
     hint?.kind === 'step'
       ? [...hint.step.patternCells, ...hint.step.placements.map((p) => p.cell)]
-      : [];
+      : hint?.kind === 'noteError'
+        ? hint.cells
+        : [];
 
   const levelName = LEVEL_NAMES[lang][game.level];
   const baseTitle = game.dailyDate ? `${t('dailyPuzzle')} · ${levelName}` : levelName;
@@ -261,6 +271,8 @@ export function GameScreen({ slot, onHome: goHome, onPlayAgain: playAgain }: Pro
         <Card colors={colors} style={{ backgroundColor: colors.hintBg, borderColor: colors.hintBg }}>
           {hint.kind === 'error' ? (
             <Text style={{ color: colors.text }}>{ERROR_HINT_TEXT[lang]}</Text>
+          ) : hint.kind === 'noteError' ? (
+            <Text style={{ color: colors.text, lineHeight: 21 }}>{describeNoteError(hint.cells, lang)}</Text>
           ) : hint.kind === 'step' ? (
             <>
               <Text style={{ color: colors.text, fontWeight: '500' }}>

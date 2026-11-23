@@ -233,12 +233,17 @@ export interface HintResult {
   hint: Hint;
 }
 
+/**
+ * @param skip Antall tips som allerede er vist uten at brettet eller notatene er endret.
+ *             Da vises neste steg i stedet for det samme tipset igjen.
+ */
 export function requestHint(
   s: GameState,
   penalties: Penalties = DEFAULT_PENALTIES,
+  skip = 0,
 ): HintResult {
   if (s.status !== 'playing' || !hintsAllowed(s)) return { state: s, hint: { kind: 'none' } };
-  const hint = getHint(s.values, parseGrid(s.solution));
+  const hint = getHint(s.values, parseGrid(s.solution), s.notes, skip);
   if (hint.kind === 'none') return { state: s, hint };
   return {
     state: { ...s, hintCount: s.hintCount + 1, penaltyMs: s.penaltyMs + penalties.hintMs },
