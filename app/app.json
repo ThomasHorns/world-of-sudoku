@@ -3,7 +3,7 @@
     "name": "World of Sudoku",
     "slug": "world-of-sudoku",
     "owner": "mchorn-team",
-    "version": "1.0.1",
+    "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
@@ -56,12 +56,26 @@
             "cstr6suwn9.skadnetwork"
           ]
         }
+      ],
+      [
+        "@sentry/react-native/expo",
+        {
+          "url": "https://de.sentry.io/",
+          "organization": "mchorn",
+          "project": "react-native"
+        }
       ]
     ],
     "extra": {
       "eas": {
         "projectId": "a8e7b702-35ce-4224-888c-6dc73b7eecbd"
       }
+    },
+    "runtimeVersion": {
+      "policy": "fingerprint"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/a8e7b702-35ce-4224-888c-6dc73b7eecbd"
     }
   }
 }

@@ -6,7 +6,7 @@ Apple avviste 1.0.0 den 21.11.2026 og ba om skjermopptak + svar på punkt 2–6 
 
 ---
 SCREEN RECORDING
-Attached (Attachment field): recorded on a physical iPhone running the latest iOS, using the submitted build 1.0.0 (6). It starts at app launch and shows the tracking prompt, the home screen, playing a puzzle (number entry, notes, hint with explanation, pause), statistics, settings and the paid Pro features: Pro restored with "Restore purchases" (it was already purchased on the TestFlight account, so the purchase sheet cannot be shown again), no ads and the Game Center leaderboards. Without Pro, a banner ad is shown at the bottom of the home, statistics and settings screens, and "Buy Pro" opens the standard App Store purchase sheet.
+Attached (Attachment field): recorded on a physical iPhone running the latest iOS, using build 1.0.0 (6). The newly submitted build 1.0.0 (11) works the same way; it only adds hint improvements (each hint explains its reasoning, points out pencil notes that can be removed, and does not repeat while other hints are available), plus crash reporting. It starts at app launch and shows the tracking prompt, the home screen, playing a puzzle (number entry, notes, hint with explanation, pause), statistics, settings and the paid Pro features: Pro restored with "Restore purchases" (it was already purchased on the TestFlight account, so the purchase sheet cannot be shown again), no ads and the Game Center leaderboards. Without Pro, a banner ad is shown at the bottom of the home, statistics and settings screens, and "Buy Pro" opens the standard App Store purchase sheet.
 
 1. PURPOSE AND AUDIENCE
 World of Sudoku is a classic sudoku puzzle game for everyone (rated 4+). It offers calm, ad-supported play with five difficulty levels and a new daily puzzle. Its main value is that every puzzle is graded by the solving techniques it requires and has exactly one solution, and the hint button explains the next logical step (e.g. "naked single", "X-Wing") instead of just revealing a number, so players learn to solve harder puzzles.
@@ -25,6 +25,7 @@ World of Sudoku is a classic sudoku puzzle game for everyone (rated 4+). It offe
 - Apple StoreKit: the Pro in-app purchase.
 - Apple Game Center (GameKit): leaderboards.
 - Google AdMob (Google Mobile Ads SDK) with Google's User Messaging Platform: banner ads on the home, statistics and settings screens (never during play) and an occasional interstitial after a finished game. Consent and App Tracking Transparency prompts are shown at first launch.
+- Sentry (EU region): anonymous crash reports only (no IP address, no personal data, no tracking), to find and fix bugs.
 - No own servers, no user accounts, no AI services and no third-party payment processors. All puzzles are bundled in the app and generated/verified by us.
 
 4. REGIONAL DIFFERENCES

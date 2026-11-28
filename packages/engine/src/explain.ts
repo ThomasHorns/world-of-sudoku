@@ -3,7 +3,7 @@
  * Appen kan bruke disse direkte eller erstatte dem med egne oversettelser.
  */
 import { colOf, rowOf, unitKind, unitNumber } from './board';
-import { Level, Step, TechniqueId } from './logic';
+import { CellDigit, Level, Step, TechniqueId } from './logic';
 
 export type Lang = 'nb' | 'en';
 
@@ -48,15 +48,6 @@ export const ERROR_HINT_TEXT: Record<Lang, string> = {
   en: 'There is at least one mistake on the board.',
 };
 
-/** Tekst når notatene i én eller flere ruter mangler det riktige tallet. */
-export function describeNoteError(noteCells: number[], lang: Lang): string {
-  const where = cells(noteCells, lang);
-  if (lang === 'nb') return `Notatene i ${where} mangler det riktige tallet.`;
-  return noteCells.length === 1
-    ? `The notes in ${where} are missing the correct number.`
-    : `The notes in ${where} are missing the correct numbers.`;
-}
-
 const WORDS = {
   nb: { row: 'rad', col: 'kolonne', box: 'boks', and: 'og' },
   en: { row: 'row', col: 'column', box: 'box', and: 'and' },
@@ -80,19 +71,73 @@ function cells(cs: number[], lang: Lang): string {
   return list(cs.map((c) => `(${cellName(c, lang)})`), lang);
 }
 
+function byDigit(items: CellDigit[]): [number, number[]][] {
+  const map = new Map<number, number[]>();
+  for (const e of items) map.set(e.digit, [...(map.get(e.digit) ?? []), e.cell]);
+  return [...map];
+}
+
+/** «7 kan ikke stå i (…) og (…)». Gjelder både noterte og ikke-noterte tall. */
 function elimSummary(s: Step, lang: Lang): string {
-  const byDigit = new Map<number, number[]>();
-  for (const e of s.eliminations) byDigit.set(e.digit, [...(byDigit.get(e.digit) ?? []), e.cell]);
-  const parts = [...byDigit].map(([d, cs]) =>
-    lang === 'nb'
-      ? `${d} kan fjernes fra ${cells(cs, lang)}`
-      : `${d} can be removed from ${cells(cs, lang)}`,
+  const parts = byDigit(s.eliminations).map(([d, cs]) =>
+    lang === 'nb' ? `${d} kan ikke stå i ${cells(cs, lang)}` : `${d} cannot go in ${cells(cs, lang)}`,
   );
   return list(parts, lang);
 }
 
-/** Forklaring av et steg i hele setninger. */
-export function describeStep(s: Step, lang: Lang): string {
+/** Setning om hvilke av spillerens notater som kan fjernes (tom hvis ingen). */
+function notesToRemove(s: Step, notes: readonly number[] | undefined, lang: Lang): string {
+  if (!notes) return '';
+  const hit = s.eliminations.filter((e) => notes[e.cell] & (1 << (e.digit - 1)));
+  if (hit.length === 0) return '';
+  const parts = byDigit(hit).map(([d, cs]) =>
+    lang === 'nb' ? `notatet ${d} i ${cells(cs, lang)}` : `the note ${d} in ${cells(cs, lang)}`,
+  );
+  return lang === 'nb' ? ` Du kan fjerne ${list(parts, lang)}.` : ` You can remove ${list(parts, lang)}.`;
+}
+
+/** Setning om tidligere tips steget bygger på (tom hvis ingen). */
+function builtOnText(builtOn: CellDigit[] | undefined, lang: Lang): string {
+  if (!builtOn || builtOn.length === 0) return '';
+  const parts = byDigit(builtOn).map(([d, cs]) =>
+    lang === 'nb' ? `${d} kan ikke stå i ${cells(cs, lang)}` : `${d} cannot go in ${cells(cs, lang)}`,
+  );
+  return lang === 'nb'
+    ? ` Dette bygger på tidligere tips: ${list(parts, lang)}.`
+    : ` This builds on earlier hints: ${list(parts, lang)}.`;
+}
+
+/** Notat som strider mot et tall i samme rad, kolonne eller boks. */
+export function describeNoteConflict(
+  h: { cell: number; digit: number; source: number; unit: number },
+  lang: Lang,
+): string {
+  return lang === 'nb'
+    ? `Notatet ${h.digit} i (${cellName(h.cell, lang)}) kan fjernes: ${h.digit} står allerede i (${cellName(h.source, lang)}), i samme ${WORDS.nb[unitKind(h.unit)]}.`
+    : `The note ${h.digit} in (${cellName(h.cell, lang)}) can be removed: ${h.digit} is already in (${cellName(h.source, lang)}), in the same ${WORDS.en[unitKind(h.unit)]}.`;
+}
+
+/**
+ * Forklaring av et steg i hele setninger, med bevis.
+ * @param notes   Spillerens notater: nevner hvilke notater som kan fjernes.
+ * @param builtOn Utelukkelser fra tidligere tips som steget bygger på.
+ */
+export function describeStep(
+  s: Step,
+  lang: Lang,
+  notes?: readonly number[],
+  builtOn?: CellDigit[],
+): string {
+  const core =
+    s.technique === 'nakedSingle' && builtOn && builtOn.length > 0
+      ? lang === 'nb'
+        ? `I (${cellName(s.placements[0].cell, lang)}) er alle andre tall utelukket av tallene i samme rad, kolonne eller boks og av tidligere tips. Bare ${s.placements[0].digit} er mulig.`
+        : `In (${cellName(s.placements[0].cell, lang)}) every other digit is ruled out by the same row, column or box and by earlier hints. Only ${s.placements[0].digit} is possible.`
+      : describeCore(s, lang);
+  return core + notesToRemove(s, notes, lang) + builtOnText(builtOn, lang);
+}
+
+function describeCore(s: Step, lang: Lang): string {
   const p = s.placements[0];
   const d = s.digits;
   const u = s.units.map((x) => unitName(x, lang));
@@ -121,7 +166,7 @@ export function describeStep(s: Step, lang: Lang): string {
     case 'nakedPair':
     case 'nakedTriple':
       return nb
-        ? `I ${u[0]} kan rutene ${cells(s.patternCells, lang)} bare inneholde ${list(d, lang)}. Disse tallene må stå der. Det betyr at ${elimSummary(s, lang)}.`
+        ? `I ${u[0]} kan rutene ${cells(s.patternCells, lang)} bare inneholde ${list(d, lang)}. Disse tallene må stå der. Derfor: ${elimSummary(s, lang)}.`
         : `In ${u[0]}, the cells ${cells(s.patternCells, lang)} can only hold ${list(d, lang)}. Those digits must go there, so ${elimSummary(s, lang)}.`;
     case 'hiddenPair':
     case 'hiddenTriple':
@@ -131,13 +176,13 @@ export function describeStep(s: Step, lang: Lang): string {
     case 'xWing':
     case 'swordfish':
       return nb
-        ? `I ${list(u, lang)} kan ${d[0]} bare stå i de samme ${s.units.length} ${unitKind(s.units[0]) === 'row' ? 'kolonnene' : 'radene'}. Det betyr at ${elimSummary(s, lang)}.`
+        ? `I ${list(u, lang)} kan ${d[0]} bare stå i de samme ${s.units.length} ${unitKind(s.units[0]) === 'row' ? 'kolonnene' : 'radene'}. Derfor: ${elimSummary(s, lang)}.`
         : `In ${list(u, lang)}, ${d[0]} can only be in the same ${s.units.length} ${unitKind(s.units[0]) === 'row' ? 'columns' : 'rows'}. Therefore ${elimSummary(s, lang)}.`;
     case 'xyWing': {
       const [pivot, a, c] = s.patternCells;
       const [x, y, z] = d;
       return nb
-        ? `(${cellName(pivot, lang)}) er enten ${x} eller ${y}. Er den ${x}, blir (${cellName(a, lang)}) ${z}. Er den ${y}, blir (${cellName(c, lang)}) ${z}. Uansett blir én av dem ${z}. Det betyr at ${elimSummary(s, lang)}.`
+        ? `(${cellName(pivot, lang)}) er enten ${x} eller ${y}. Er den ${x}, blir (${cellName(a, lang)}) ${z}. Er den ${y}, blir (${cellName(c, lang)}) ${z}. Uansett blir én av dem ${z}. Derfor: ${elimSummary(s, lang)}.`
         : `(${cellName(pivot, lang)}) is either ${x} or ${y}. If ${x}, (${cellName(a, lang)}) becomes ${z}. If ${y}, (${cellName(c, lang)}) becomes ${z}. Either way one of them is ${z}, so ${elimSummary(s, lang)}.`;
     }
   }

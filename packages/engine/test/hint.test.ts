@@ -1,12 +1,14 @@
 import { describe, expect, it } from 'vitest';
 import {
-  applyStep,
+  PEERS,
   bit,
   createState,
-  describeNoteError,
+  describeNoteConflict,
   describeStep,
   ERROR_HINT_TEXT,
   getHint,
+  hintKey,
+  hintKeyOf,
   LEVEL_NAMES,
   solveLogically,
   TECHNIQUE_NAMES,
@@ -36,87 +38,183 @@ describe('tips', () => {
   });
 });
 
-describe('tips med notater', () => {
-  /** Spiller som følger hvert tips: fjerner notater og setter inn tall slik tipset sier. */
-  function followHints(level: Level, seed: number, rounds: number) {
-    const { puzzle, solution } = generatePuzzle(level, createRng(seed))!;
-    const s = createState(puzzle); // spilleren har notert alle mulige kandidater
-    const shown: Step[] = [];
-    for (let i = 0; i < rounds; i++) {
-      const hint = getHint(s.values, solution, s.cands);
-      if (hint.kind !== 'step') break;
-      shown.push(hint.step);
-      // Hvert forslag om å fjerne et notat gjelder et notat som faktisk finnes.
-      for (const e of hint.step.eliminations) expect(s.cands[e.cell] & bit(e.digit)).not.toBe(0);
-      applyStep(s, hint.step);
+describe('tips og notater', () => {
+  /** Trykker på tips til et tips gjentas, slik appen gjør (husker viste tips). */
+  function pressUntilRepeat(grid: number[], max = 500) {
+    const shown = new Set<string>();
+    const keys: string[] = [];
+    for (let i = 0; i < max; i++) {
+      const hint = getHint(grid, CLASSIC_SOLUTION, undefined, shown);
+      if (hint.kind !== 'step') throw new Error('ventet et tips');
+      const key = hintKey(hint.step);
+      keys.push(key);
+      if (shown.has(key)) return keys;
+      shown.add(key);
     }
-    return shown;
+    throw new Error('tipsene gjentok seg aldri');
   }
 
-  it('foreslår aldri å fjerne et notat som allerede er borte, og går videre når spilleren følger tipset', () => {
-    let eliminationSteps = 0;
-    for (const level of [3, 4, 5] as Level[]) {
-      for (const seed of [11, 12, 13]) {
-        const steps = followHints(level, seed * 10 + level, 200);
-        eliminationSteps += steps.filter((st) => st.placements.length === 0).length;
-        // Ingen tips gjentas: hvert tips gjør noe nytt.
-        const keys = steps.map((st) => JSON.stringify([st.technique, st.placements, st.eliminations]));
-        expect(new Set(keys).size).toBe(keys.length);
+  it('gjentar ikke et tips før alle andre tips er vist', () => {
+    const keys = pressUntilRepeat(CLASSIC.slice());
+    const distinct = keys.slice(0, -1);
+    expect(distinct.length).toBeGreaterThan(1);
+    expect(new Set(distinct).size).toBe(distinct.length);
+    // Når alt er vist, kommer det enkleste tipset først igjen.
+    expect(keys[keys.length - 1]).toBe(keys[0]);
+  });
+
+  it('viser ikke det samme tipset igjen etter at spilleren har satt inn et tall et annet sted', () => {
+    const grid = CLASSIC.slice();
+    const shown = new Set<string>();
+    const first = getHint(grid, CLASSIC_SOLUTION, undefined, shown);
+    if (first.kind !== 'step') throw new Error('ventet et tips');
+    shown.add(hintKey(first.step));
+    const hinted = new Set([...first.step.patternCells, ...first.step.placements.map((p) => p.cell)]);
+    // Spilleren fyller en annen tom rute riktig i stedet for å følge tipset.
+    const other = grid.findIndex((v, c) => v === 0 && !hinted.has(c));
+    grid[other] = CLASSIC_SOLUTION[other];
+    const second = getHint(grid, CLASSIC_SOLUTION, undefined, shown);
+    if (second.kind !== 'step') throw new Error('ventet et tips');
+    expect(hintKey(second.step)).not.toBe(hintKey(first.step));
+  });
+
+  it('hvert tips gjelder brettet slik det står nå', () => {
+    const shown = new Set<string>();
+    for (let i = 0; i < 30; i++) {
+      const hint = getHint(CLASSIC, CLASSIC_SOLUTION, undefined, shown);
+      if (hint.kind !== 'step') break;
+      shown.add(hintKey(hint.step));
+      // Tallene som foreslås er riktige, og rutene er tomme.
+      for (const p of hint.step.placements) {
+        expect(CLASSIC[p.cell]).toBe(0);
+        expect(p.digit).toBe(CLASSIC_SOLUTION[p.cell]);
+      }
+      // Kandidatene som foreslås fjernet, er faktisk mulige nå og er ikke fasiten.
+      const now = createState(CLASSIC);
+      for (const e of hint.step.eliminations) {
+        expect(now.cands[e.cell] & bit(e.digit)).not.toBe(0);
+        expect(e.digit).not.toBe(CLASSIC_SOLUTION[e.cell]);
       }
     }
-    expect(eliminationSteps).toBeGreaterThan(0); // testen dekker tips som bare fjerner notater
   });
 
-  it('bruker notatene: et notat spilleren har fjernet blir ikke foreslått fjernet igjen', () => {
-    // Finn et tips som bare fjerner kandidater, fjern de notatene selv, og spør igjen.
-    for (const seed of [21, 22, 23, 24, 25]) {
-      const { puzzle, solution } = generatePuzzle(4, createRng(seed))!;
-      const s = createState(puzzle);
-      for (let i = 0; i < 200; i++) {
-        const hint = getHint(s.values, solution, s.cands);
-        if (hint.kind !== 'step') break;
-        if (hint.step.placements.length === 0) {
-          const before = getHint(s.values, solution); // uten notater: samme tips
-          expect(before.kind === 'step' && before.step.eliminations).toBeTruthy();
-          for (const e of hint.step.eliminations) s.cands[e.cell] &= ~bit(e.digit);
-          const after = getHint(s.values, solution, s.cands);
-          if (after.kind === 'step') {
-            expect(JSON.stringify(after.step.eliminations)).not.toBe(JSON.stringify(hint.step.eliminations));
-          }
-          return;
-        }
-        applyStep(s, hint.step);
-      }
-    }
-    throw new Error('fant ikke noe tips som bare fjerner kandidater');
-  });
-
-  it('viser neste tips når spilleren trykker igjen uten å endre noe', () => {
-    const first = getHint(CLASSIC, CLASSIC_SOLUTION, undefined, 0);
-    const second = getHint(CLASSIC, CLASSIC_SOLUTION, undefined, 1);
-    expect(first.kind).toBe('step');
-    expect(second.kind).toBe('step');
-    expect(second).not.toEqual(first);
-  });
-
-  it('peker på ruten når notatene mangler det riktige tallet', () => {
-    const cell = CLASSIC.findIndex((v) => v === 0);
-    const notes = new Array(81).fill(0);
-    notes[cell] = 0b111111111 & ~bit(CLASSIC_SOLUTION[cell]);
-    expect(getHint(CLASSIC, CLASSIC_SOLUTION, notes)).toEqual({ kind: 'noteError', cells: [cell] });
-    expect(describeNoteError([cell], 'nb')).toMatch(/rad \d, kolonne \d/);
-    expect(describeNoteError([cell], 'en')).toMatch(/row \d, column \d/);
-  });
-
-  it('feil tall går foran feil i notatene', () => {
+  it('feil tall går foran alt annet', () => {
     const g = CLASSIC.slice();
     const wrong = g.findIndex((v) => v === 0);
     g[wrong] = CLASSIC_SOLUTION[wrong] === 1 ? 2 : 1;
-    const notes = new Array(81).fill(0);
-    const other = g.findIndex((v, i) => v === 0 && i !== wrong);
-    notes[other] = 0b111111111 & ~bit(CLASSIC_SOLUTION[other]);
-    expect(getHint(g, CLASSIC_SOLUTION, notes)).toEqual({ kind: 'error' });
+    expect(getHint(g, CLASSIC_SOLUTION, new Array(81).fill(0))).toEqual({ kind: 'error' });
   });
+
+  it('notater er påminnelser: delvise eller ufullstendige notater endrer ikke tipset', () => {
+    const plain = getHint(CLASSIC, CLASSIC_SOLUTION);
+    // Spilleren har bare notert ett tall i noen ruter, og ikke alltid det riktige.
+    const notes = new Array(81).fill(0);
+    const cands = createState(CLASSIC).cands;
+    for (let c = 0; c < 81; c += 7) {
+      if (CLASSIC[c] !== 0) continue;
+      const wrong = cands[c] & ~bit(CLASSIC_SOLUTION[c]);
+      notes[c] = wrong ? wrong & -wrong : bit(CLASSIC_SOLUTION[c]);
+    }
+    expect(getHint(CLASSIC, CLASSIC_SOLUTION, notes)).toEqual(plain);
+  });
+
+  it('peker ut et notat som strider mot et tall i samme rad, kolonne eller boks', () => {
+    const cell = CLASSIC.findIndex((v) => v === 0);
+    const source = PEERS[cell].find((p) => CLASSIC[p] !== 0)!;
+    const digit = CLASSIC[source];
+    const notes = new Array(81).fill(0);
+    notes[cell] = bit(digit) | bit(CLASSIC_SOLUTION[cell]);
+    const hint = getHint(CLASSIC, CLASSIC_SOLUTION, notes);
+    expect(hint).toMatchObject({ kind: 'noteConflict', cell, digit, source });
+    if (hint.kind !== 'noteConflict') throw new Error();
+    expect(describeNoteConflict(hint, 'nb')).toContain(`Notatet ${digit} i (rad `);
+    expect(describeNoteConflict(hint, 'nb')).toContain(`kan fjernes: ${digit} står allerede i (rad `);
+    expect(describeNoteConflict(hint, 'en')).toMatch(/can be removed/);
+    // Neste trykk gir et vanlig tips.
+    const next = getHint(CLASSIC, CLASSIC_SOLUTION, notes, new Set([hintKeyOf(hint)!]));
+    expect(next.kind).toBe('step');
+  });
+
+  it('sier hvilke notater som kan fjernes, og bare notater spilleren har', () => {
+    // Finn et tips som utelukker tall, og noter ett av dem.
+    for (const seed of [21, 22, 23, 24, 25, 26]) {
+      const { puzzle, solution } = generatePuzzle(4, createRng(seed))!;
+      const shown = new Set<string>();
+      for (let i = 0; i < 300; i++) {
+        const hint = getHint(puzzle, solution, undefined, shown);
+        if (hint.kind !== 'step') break;
+        shown.add(hintKeyOf(hint)!);
+        if (hint.step.eliminations.length === 0) continue;
+        const e = hint.step.eliminations[0];
+        const notes = new Array(81).fill(0);
+        notes[e.cell] = bit(e.digit);
+        const nb = describeStep(hint.step, 'nb', notes, hint.builtOn);
+        expect(nb).toContain(`Du kan fjerne notatet ${e.digit} i (`);
+        expect(nb).toMatch(/kan ikke stå i/);
+        expect(describeStep(hint.step, 'nb', new Array(81).fill(0))).not.toMatch(/Du kan fjerne/);
+        return;
+      }
+    }
+    throw new Error('fant ikke noe tips som utelukker tall');
+  });
+
+  /**
+   * Spiller som bare setter inn tall (noterer ingenting) og trykker på tips når hen står fast.
+   * Viste utelukkelser skal tipsene bygge videre på, så brettet blir løst også på høye nivåer.
+   */
+  function solveWithHints(level: Level, seed: number) {
+    const { puzzle, solution } = generatePuzzle(level, createRng(seed))!;
+    const grid = puzzle.slice();
+    const shown = new Set<string>();
+    let builtOn = 0;
+    for (let i = 0; i < 2000 && grid.includes(0); i++) {
+      const hint = getHint(grid, solution, undefined, shown);
+      if (hint.kind !== 'step') throw new Error('ventet et tips');
+      const key = hintKeyOf(hint)!;
+      if (shown.has(key)) shown.clear();
+      shown.add(key);
+      if (hint.builtOn.length > 0) builtOn++;
+      // Alt tipset sier, stemmer med fasiten.
+      for (const p of hint.step.placements) expect(p.digit).toBe(solution[p.cell]);
+      for (const e of hint.step.eliminations) expect(e.digit).not.toBe(solution[e.cell]);
+      for (const e of hint.builtOn) expect(e.digit).not.toBe(solution[e.cell]);
+      for (const p of hint.step.placements) grid[p.cell] = p.digit;
+    }
+    return { solved: !grid.includes(0), builtOn };
+  }
+
+  it('fører fram til løsningen og bygger på tidligere tips når det trengs', () => {
+    let builtOn = 0;
+    for (const level of [3, 4, 5] as Level[]) {
+      for (const seed of [31, 32]) {
+        const r = solveWithHints(level, seed * 10 + level);
+        expect(r.solved).toBe(true);
+        builtOn += r.builtOn;
+      }
+    }
+    expect(builtOn).toBeGreaterThan(0);
+  });
+
+  it('forteller i teksten når et tips bygger på tidligere tips', () => {
+    for (const seed of [41, 42, 43, 44, 45]) {
+      const { puzzle, solution } = generatePuzzle(5, createRng(seed))!;
+      const grid = puzzle.slice();
+      const shown = new Set<string>();
+      for (let i = 0; i < 2000 && grid.includes(0); i++) {
+        const hint = getHint(grid, solution, undefined, shown);
+        if (hint.kind !== 'step') break;
+        shown.add(hintKeyOf(hint)!);
+        if (hint.builtOn.length > 0) {
+          expect(describeStep(hint.step, 'nb', undefined, hint.builtOn)).toMatch(/bygger på tidligere tips/);
+          expect(describeStep(hint.step, 'en', undefined, hint.builtOn)).toMatch(/builds on earlier hints/);
+          return;
+        }
+        for (const p of hint.step.placements) grid[p.cell] = p.digit;
+      }
+    }
+    throw new Error('fant ikke noe tips som bygger på tidligere tips');
+  });
+
 });
 
 describe('forklaringstekster', () => {

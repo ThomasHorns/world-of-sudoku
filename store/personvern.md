@@ -1,6 +1,6 @@
 # Personvernerklæring – World of Sudoku
 
-Sist oppdatert: 19. november 2026
+Sist oppdatert: 23. november 2026
 
 World of Sudoku er laget av Thomas Hornsletten, privatperson («jeg» under). Denne erklæringen forklarer hvilke opplysninger som behandles når du bruker appen.
 
@@ -11,7 +11,8 @@ World of Sudoku er laget av Thomas Hornsletten, privatperson («jeg» under). De
 - Du bestemmer selv om annonsene kan bruke sporing. Du kan si nei.
 - Pro (engangskjøp) fjerner annonsene. Kjøpet håndteres av Apple.
 - Topplistene bruker Apple Game Center.
-- Jeg har ingen egen server og mottar ingen personopplysninger om deg.
+- Hvis appen krasjer, sendes en anonym krasjrapport til Sentry slik at feilen kan rettes.
+- Jeg har ingen egen server og mottar ingen opplysninger som identifiserer deg.
 
 ## Data som lagres på enheten
 
@@ -42,13 +43,17 @@ Pro kjøpes gjennom App Store. Betalingen og kjøpsopplysningene håndteres av A
 
 Med Pro kan resultater fra spill uten hjelpemidler sendes til Apple Game Center. Da vises Game Center-navnet ditt og resultatet ditt (tid eller antall løste brett) på topplistene for andre spillere. Dette håndteres av Apple etter Apples personvernregler. Du kan administrere Game Center under Innstillinger → Game Center på enheten.
 
+## Krasjrapporter (Sentry)
+
+Hvis appen krasjer eller får en alvorlig feil, sendes en krasjrapport til Sentry (Functional Software, Inc.), lagret i EU. Rapporten inneholder teknisk informasjon: hva som gikk galt i koden, appversjon, enhetsmodell og iOS-versjon. Den inneholder ikke navn, e-post, annonse-ID, posisjon eller IP-adresse, og brukes ikke til annonser eller sporing. Rapportene brukes bare til å finne og rette feil, og slettes automatisk etter Sentrys lagringstid. Det rettslige grunnlaget er berettiget interesse i en app som virker. Les mer: https://sentry.io/privacy/
+
 ## Barn
 
 Appen er ikke rettet mot barn under 13 år, og jeg samler ikke bevisst inn opplysninger om barn.
 
 ## Dine rettigheter
 
-Du har rett til innsyn, retting, sletting og til å trekke tilbake samtykke. Siden jeg ikke lagrer opplysninger om deg, gjelder innsyn og sletting for annonsedata Google: se https://myadcenter.google.com. Du kan også klage til Datatilsynet (www.datatilsynet.no).
+Du har rett til innsyn, retting, sletting og til å trekke tilbake samtykke. Siden jeg ikke lagrer opplysninger som identifiserer deg, gjelder innsyn og sletting for annonsedata Google: se https://myadcenter.google.com. Du kan også klage til Datatilsynet (www.datatilsynet.no).
 
 ## Endringer
 
@@ -62,7 +67,7 @@ Spørsmål om personvern: thomas.hornsletten@gmail.com
 
 # Privacy policy – World of Sudoku
 
-Last updated: 19 November 2026
+Last updated: 23 November 2026
 
 World of Sudoku is made by Thomas Hornsletten, an individual developer ("I" below). This policy explains what information is processed when you use the app.
 
@@ -73,7 +78,8 @@ World of Sudoku is made by Thomas Hornsletten, an individual developer ("I" belo
 - You decide whether ads may use tracking. You can say no.
 - Pro (one-time purchase) removes the ads. The purchase is handled by Apple.
 - The leaderboards use Apple Game Center.
-- I have no server of my own and receive no personal data about you.
+- If the app crashes, an anonymous crash report is sent to Sentry so the bug can be fixed.
+- I have no server of my own and receive no information that identifies you.
 
 ## Data stored on the device
 
@@ -104,13 +110,17 @@ Pro is bought through the App Store. Payment and purchase information are handle
 
 With Pro, results from games played without aids can be sent to Apple Game Center. Your Game Center name and result (time or number of solved puzzles) are then shown on the leaderboards to other players. This is handled by Apple under Apple's privacy policy. You can manage Game Center under Settings → Game Center on your device.
 
+## Crash reports (Sentry)
+
+If the app crashes or hits a serious error, a crash report is sent to Sentry (Functional Software, Inc.), stored in the EU. The report contains technical information: what went wrong in the code, app version, device model and iOS version. It does not contain your name, email, advertising ID, location or IP address, and is not used for ads or tracking. Reports are used only to find and fix bugs and are deleted automatically after Sentry's retention period. The legal basis is legitimate interest in an app that works. More: https://sentry.io/privacy/
+
 ## Children
 
 The app is not directed at children under 13, and I do not knowingly collect information about children.
 
 ## Your rights
 
-You have the right to access, correct and delete data and to withdraw consent. Since I do not store information about you, access and deletion of advertising data is handled by Google: see https://myadcenter.google.com. You may also complain to your data protection authority (in Norway: Datatilsynet, www.datatilsynet.no).
+You have the right to access, correct and delete data and to withdraw consent. Since I do not store information that identifies you, access and deletion of advertising data is handled by Google: see https://myadcenter.google.com. You may also complain to your data protection authority (in Norway: Datatilsynet, www.datatilsynet.no).
 
 ## Changes
 

@@ -234,16 +234,16 @@ export interface HintResult {
 }
 
 /**
- * @param skip Antall tips som allerede er vist uten at brettet eller notatene er endret.
- *             Da vises neste steg i stedet for det samme tipset igjen.
+ * @param shown Nøkler (hintKey) for tips som allerede er vist i dette spillet. Et nytt
+ *              tips gjentar ikke et vist tips så lenge det finnes andre steg.
  */
 export function requestHint(
   s: GameState,
   penalties: Penalties = DEFAULT_PENALTIES,
-  skip = 0,
+  shown?: ReadonlySet<string>,
 ): HintResult {
   if (s.status !== 'playing' || !hintsAllowed(s)) return { state: s, hint: { kind: 'none' } };
-  const hint = getHint(s.values, parseGrid(s.solution), s.notes, skip);
+  const hint = getHint(s.values, parseGrid(s.solution), s.notes, shown);
   if (hint.kind === 'none') return { state: s, hint };
   return {
     state: { ...s, hintCount: s.hintCount + 1, penaltyMs: s.penaltyMs + penalties.hintMs },

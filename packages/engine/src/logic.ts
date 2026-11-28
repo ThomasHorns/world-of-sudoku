@@ -172,12 +172,15 @@ function findFullHouse(state: LogicState): Step | null {
     const missing = ALL_DIGITS_MASK & ~used;
     if (popcount(missing) !== 1 || !(state.cands[cell] & missing)) continue;
     const digit = firstDigit(missing);
-    return step('fullHouse', {
-      placements: [{ cell, digit }],
-      patternCells: [cell],
-      digits: [digit],
-      units: [u],
-    });
+    {
+      const found = step('fullHouse', {
+        placements: [{ cell, digit }],
+        patternCells: [cell],
+        digits: [digit],
+        units: [u],
+      });
+      if (accept(found)) return found;
+    }
   }
   return null;
 }
@@ -187,11 +190,14 @@ function findNakedSingle(state: LogicState): Step | null {
   for (let cell = 0; cell < CELL_COUNT; cell++) {
     if (state.values[cell] === 0 && popcount(state.cands[cell]) === 1) {
       const digit = firstDigit(state.cands[cell]);
-      return step('nakedSingle', {
-        placements: [{ cell, digit }],
-        patternCells: [cell],
-        digits: [digit],
-      });
+      {
+        const found = step('nakedSingle', {
+          placements: [{ cell, digit }],
+          patternCells: [cell],
+          digits: [digit],
+        });
+        if (accept(found)) return found;
+      }
     }
   }
   return null;
@@ -206,12 +212,15 @@ function findHiddenSingle(state: LogicState): Step | null {
     for (let digit = 1; digit <= 9; digit++) {
       const cells = cellsWithDigit(state, UNITS[u], digit);
       if (cells.length === 1) {
-        return step('hiddenSingle', {
-          placements: [{ cell: cells[0], digit }],
-          patternCells: cells,
-          digits: [digit],
-          units: [u],
-        });
+        {
+          const found = step('hiddenSingle', {
+            placements: [{ cell: cells[0], digit }],
+            patternCells: cells,
+            digits: [digit],
+            units: [u],
+          });
+          if (accept(found)) return found;
+        }
       }
     }
   }
@@ -236,12 +245,15 @@ function findPointing(state: LogicState): Step | null {
           .filter((c) => boxOf(c) !== b && state.cands[c] & bit(digit))
           .map((cell) => ({ cell, digit }));
         if (elims.length) {
-          return step('pointing', {
-            eliminations: elims,
-            patternCells: cells,
-            digits: [digit],
-            units: [18 + b, kind === 'row' ? line : 9 + line],
-          });
+          {
+            const found = step('pointing', {
+              eliminations: elims,
+              patternCells: cells,
+              digits: [digit],
+              units: [18 + b, kind === 'row' ? line : 9 + line],
+            });
+            if (accept(found)) return found;
+          }
         }
       }
     }
@@ -262,12 +274,15 @@ function findClaiming(state: LogicState): Step | null {
         .filter((c) => !inLine.has(c) && state.cands[c] & bit(digit))
         .map((cell) => ({ cell, digit }));
       if (elims.length) {
-        return step('claiming', {
-          eliminations: elims,
-          patternCells: cells,
-          digits: [digit],
-          units: [u, 18 + b],
-        });
+        {
+          const found = step('claiming', {
+            eliminations: elims,
+            patternCells: cells,
+            digits: [digit],
+            units: [u, 18 + b],
+          });
+          if (accept(found)) return found;
+        }
       }
     }
   }
@@ -295,12 +310,15 @@ function findNakedSubset(state: LogicState, n: 2 | 3): Step | null {
         for (const d of digitsOf(state.cands[c] & union)) elims.push({ cell: c, digit: d });
       }
       if (elims.length) {
-        return step(technique, {
-          eliminations: elims,
-          patternCells: combo,
-          digits: digitsOf(union),
-          units: [u],
-        });
+        {
+          const found = step(technique, {
+            eliminations: elims,
+            patternCells: combo,
+            digits: digitsOf(union),
+            units: [u],
+          });
+          if (accept(found)) return found;
+        }
       }
     }
   }
@@ -329,12 +347,15 @@ function findHiddenSubset(state: LogicState, n: 2 | 3): Step | null {
         for (const d of digitsOf(state.cands[c] & ~keep)) elims.push({ cell: c, digit: d });
       }
       if (elims.length) {
-        return step(technique, {
-          eliminations: elims,
-          patternCells: cells,
-          digits,
-          units: [u],
-        });
+        {
+          const found = step(technique, {
+            eliminations: elims,
+            patternCells: cells,
+            digits,
+            units: [u],
+          });
+          if (accept(found)) return found;
+        }
       }
     }
   }
@@ -376,12 +397,15 @@ function findFish(state: LogicState, n: 2 | 3): Step | null {
         }
         if (elims.length) {
           const baseUnits = combo.map((x) => (orientation === 'row' ? x.line : 9 + x.line));
-          return step(technique, {
-            eliminations: elims,
-            patternCells: patternCells.sort((a, c) => a - c),
-            digits: [digit],
-            units: baseUnits,
-          });
+          {
+            const found = step(technique, {
+              eliminations: elims,
+              patternCells: patternCells.sort((a, c) => a - c),
+              digits: [digit],
+              units: baseUnits,
+            });
+            if (accept(found)) return found;
+          }
         }
       }
     }
@@ -414,11 +438,14 @@ function findXYWing(state: LogicState): Step | null {
           if (sees(cell, a) && sees(cell, c)) elims.push({ cell, digit: z });
         }
         if (elims.length) {
-          return step('xyWing', {
-            eliminations: elims,
-            patternCells: [pivot, a, c],
-            digits: [x, y, z],
-          });
+          {
+            const found = step('xyWing', {
+              eliminations: elims,
+              patternCells: [pivot, a, c],
+              digits: [x, y, z],
+            });
+            if (accept(found)) return found;
+          }
         }
       }
     }
@@ -446,14 +473,34 @@ const FINDERS: { id: TechniqueId; find: Finder }[] = [
   { id: 'xyWing', find: findXYWing },
 ];
 
-/** Neste logiske steg med den enkleste teknikken som gir fremgang, opp til `maxLevel`. */
-export function findNextStep(state: LogicState, maxLevel: Level = 5): Step | null {
-  for (const { id, find } of FINDERS) {
-    if (TECHNIQUE_LEVEL[id] > maxLevel) continue;
-    const s = find(state);
-    if (s) return s;
+/**
+ * Filter for funne steg. Søkene går videre forbi steg som avvises. Settes bare
+ * mens findNextStep kjører (JavaScript kjører én ting om gangen).
+ */
+let accept: (s: Step) => boolean = () => true;
+
+/**
+ * Neste logiske steg med den enkleste teknikken som gir fremgang, opp til `maxLevel`.
+ * Med `filter` hoppes steg over som filteret avviser (brukes av tips for å unngå
+ * å vise samme tips på nytt).
+ */
+export function findNextStep(
+  state: LogicState,
+  maxLevel: Level = 5,
+  filter?: (s: Step) => boolean,
+): Step | null {
+  const previous = accept;
+  accept = filter ?? (() => true);
+  try {
+    for (const { id, find } of FINDERS) {
+      if (TECHNIQUE_LEVEL[id] > maxLevel) continue;
+      const s = find(state);
+      if (s) return s;
+    }
+    return null;
+  } finally {
+    accept = previous;
   }
-  return null;
 }
 
 /** Finn et steg med en bestemt teknikk (brukes i tester). */
